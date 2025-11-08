@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class UserRoleDto {
-    private Long userId;
+    private String userId;
     private String fullName;
     private String email;
     private ProjectRole role;

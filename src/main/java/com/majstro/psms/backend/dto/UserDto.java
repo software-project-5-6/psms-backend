@@ -11,7 +11,7 @@ import java.time.Instant;
 @Builder
 public class UserDto {
 
-    private Long id;
+    private String id;
     private String cognitoSub;
     private String email;
     private String fullName;

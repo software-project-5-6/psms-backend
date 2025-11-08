@@ -26,13 +26,13 @@ public class ProjectController {
             @RequestBody ProjectDto projectDto,
             @AuthenticationPrincipal Jwt jwt) {
 
-        Long creatorUserId = getUserIdFromJwt(jwt);
+        String creatorUserId = getUserIdFromJwt(jwt);
         ProjectDto created = projectService.createProject(projectDto, creatorUserId);
         return ResponseEntity.ok(created);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProjectWithUsersDto> getProjectById(@PathVariable Long id) {
+    public ResponseEntity<ProjectWithUsersDto> getProjectById(@PathVariable String id) {
         ProjectWithUsersDto project = projectService.getProjectById(id);
         return ResponseEntity.ok(project);
     }
@@ -44,26 +44,26 @@ public class ProjectController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProjectDto> updateProject(@PathVariable Long id, @RequestBody ProjectDto projectDto) {
+    public ResponseEntity<ProjectDto> updateProject(@PathVariable String id, @RequestBody ProjectDto projectDto) {
         ProjectDto updated = projectService.updateProject(id, projectDto);
         return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteProject(@PathVariable String id) {
         projectService.deleteProject(id);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{projectId}/users/{userId}")
     public ResponseEntity<Void> removeUserFromProject(
-            @PathVariable Long projectId,
-            @PathVariable Long userId) {
+            @PathVariable String projectId,
+            @PathVariable String userId) {
         projectService.removeUserFromProject(projectId, userId);
         return ResponseEntity.noContent().build();
     }
 
-    private Long getUserIdFromJwt(Jwt jwt) {
+    private String getUserIdFromJwt(Jwt jwt) {
         if (jwt == null) {
             return null;
         }

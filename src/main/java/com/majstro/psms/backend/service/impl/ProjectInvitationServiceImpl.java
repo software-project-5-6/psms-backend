@@ -36,7 +36,7 @@ public class ProjectInvitationServiceImpl implements IProjectInvitationService {
 
     @Override
     @Transactional
-    public void sendInvitation(Long projectId, InviteRequest request, Long inviterId) {
+    public void sendInvitation(String projectId, InviteRequest request, String inviterId) {
         // Validate role
         String roleUpper = request.role().toUpperCase();
         if (!isValidRole(roleUpper)) {
@@ -195,7 +195,7 @@ public class ProjectInvitationServiceImpl implements IProjectInvitationService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProjectInvitationDTO> getPendingInvitations(Long projectId, Long userId) {
+    public List<ProjectInvitationDTO> getPendingInvitations(String projectId, String userId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
 
@@ -206,7 +206,7 @@ public class ProjectInvitationServiceImpl implements IProjectInvitationService {
 
     @Override
     @Transactional
-    public void revokeInvitation(Long invitationId, Long userId) {
+    public void revokeInvitation(Long invitationId, String userId) {
         ProjectInvitation invitation = invitationRepository.findById(invitationId)
                 .orElseThrow(() -> new RuntimeException("Invitation not found"));
 
@@ -224,7 +224,7 @@ public class ProjectInvitationServiceImpl implements IProjectInvitationService {
 
     @Override
     @Transactional
-    public void resendInvitation(Long invitationId, Long userId) {
+    public void resendInvitation(Long invitationId, String userId) {
         ProjectInvitation invitation = invitationRepository.findById(invitationId)
                 .orElseThrow(() -> new RuntimeException("Invitation not found"));
 

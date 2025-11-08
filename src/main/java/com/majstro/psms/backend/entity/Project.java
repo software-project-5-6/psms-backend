@@ -1,5 +1,6 @@
 package com.majstro.psms.backend.entity;
 
+import com.majstro.psms.backend.util.IdGenerator;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -19,8 +20,8 @@ import java.util.Set;
 public class Project {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(length = 4, nullable = false)
+    private String id;
 
     @Column(nullable = false, unique = true, length = 150)
     private String projectName;
@@ -73,5 +74,15 @@ public class Project {
     public void removeUserRole(ProjectUserRole projectUserRole) {
         userRoles.remove(projectUserRole);
         projectUserRole.setProject(null);
+    }
+
+    /**
+     * JPA lifecycle callback to generate custom ID before persisting
+     */
+    @PrePersist
+    public void generateId() {
+        if (this.id == null) {
+            this.id = IdGenerator.generateIdWithPrefix("P"); // P for Project (e.g., PA12, PX45)
+        }
     }
 }

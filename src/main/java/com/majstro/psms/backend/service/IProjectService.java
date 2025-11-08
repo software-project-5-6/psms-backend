@@ -7,15 +7,15 @@ import java.util.List;
 
 public interface IProjectService {
 
-    ProjectDto createProject(ProjectDto projectDto, Long creatorUserId);
+    ProjectDto createProject(ProjectDto projectDto, String creatorUserId);
 
-    ProjectWithUsersDto getProjectById(Long id);
+    ProjectWithUsersDto getProjectById(String id);
 
     List<ProjectDto> getAllProjects();
 
-    ProjectDto updateProject(Long id, ProjectDto projectDto);
+    ProjectDto updateProject(String id, ProjectDto projectDto);
 
-    void deleteProject(Long id);
+    void deleteProject(String id);
 
-    void removeUserFromProject(Long projectId, Long userId);
+    void removeUserFromProject(String projectId, String userId);
 }

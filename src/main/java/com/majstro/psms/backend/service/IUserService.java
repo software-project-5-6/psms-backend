@@ -12,7 +12,7 @@ public interface IUserService {
     List<UserDto> getAllUsers();
 
     // Get a single user by ID
-    UserDto getUserById(Long id);
+    UserDto getUserById(String id);
 
     // Get a user by Cognito sub
     UserDto getUserByCognitoSub(String cognitoSub);
@@ -21,5 +21,5 @@ public interface IUserService {
     UserDto getCurrentUser();
 
     // Delete a user by ID (optional, admin only)
-    void deleteUser(Long id);
+    void deleteUser(String id);
 }

@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record InviteRequest(
         @NotNull(message = "Project ID is required")
-        Long projectId,
+        String projectId,
 
         @NotBlank(message = "Email is required")
         @Email(message = "Invalid email format")

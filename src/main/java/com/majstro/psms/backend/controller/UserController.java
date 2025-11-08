@@ -33,7 +33,7 @@ public class UserController {
     //Get user by ID (ADMIN only)
     @PreAuthorize("hasAuthority('APP_ADMIN')")
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserDto> getUserById(@PathVariable String id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
@@ -47,7 +47,7 @@ public class UserController {
     //Delete a user by ID (ADMIN only)
     @PreAuthorize("hasAuthority('APP_ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }

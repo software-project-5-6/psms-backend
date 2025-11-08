@@ -27,7 +27,7 @@ public class ProjectInvitationController {
             @Valid @RequestBody InviteRequest request,
             @AuthenticationPrincipal Jwt jwt) {
 
-        Long inviterId = getUserIdFromJwt(jwt);
+        String inviterId = getUserIdFromJwt(jwt);
         invitationService.sendInvitation(request.projectId(), request, inviterId);
         return ResponseEntity.ok("Invitation sent successfully to " + request.email());
     }
@@ -44,10 +44,10 @@ public class ProjectInvitationController {
 
     @GetMapping("/project/{projectId}")
     public ResponseEntity<List<ProjectInvitationDTO>> getPendingInvitations(
-            @PathVariable Long projectId,
+            @PathVariable String projectId,
             @AuthenticationPrincipal Jwt jwt) {
 
-        Long userId = getUserIdFromJwt(jwt);
+        String userId = getUserIdFromJwt(jwt);
         List<ProjectInvitationDTO> invitations = invitationService.getPendingInvitations(projectId, userId);
         return ResponseEntity.ok(invitations);
     }
@@ -57,7 +57,7 @@ public class ProjectInvitationController {
             @PathVariable Long invitationId,
             @AuthenticationPrincipal Jwt jwt) {
 
-        Long userId = getUserIdFromJwt(jwt);
+        String userId = getUserIdFromJwt(jwt);
         invitationService.revokeInvitation(invitationId, userId);
         return ResponseEntity.ok("Invitation revoked successfully");
     }
@@ -67,7 +67,7 @@ public class ProjectInvitationController {
             @PathVariable Long invitationId,
             @AuthenticationPrincipal Jwt jwt) {
 
-        Long userId = getUserIdFromJwt(jwt);
+        String userId = getUserIdFromJwt(jwt);
         invitationService.resendInvitation(invitationId, userId);
         return ResponseEntity.ok("Invitation resent successfully");
     }
@@ -80,7 +80,7 @@ public class ProjectInvitationController {
         return ResponseEntity.ok(invitation);
     }
 
-    private Long getUserIdFromJwt(Jwt jwt) {
+    private String getUserIdFromJwt(Jwt jwt) {
         String cognitoSub = jwt != null ? jwt.getClaimAsString("sub") : null;
         if (cognitoSub != null) {
             User user = userRepository.findByCognitoSub(cognitoSub)

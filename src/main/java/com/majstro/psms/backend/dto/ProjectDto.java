@@ -12,7 +12,7 @@ import java.time.Instant;
 @Builder
 public class ProjectDto {
 
-    private Long id;
+    private String id;
     private String projectName;
     private String description;
     private String clientName;

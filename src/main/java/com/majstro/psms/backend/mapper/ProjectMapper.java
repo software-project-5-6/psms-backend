@@ -24,7 +24,10 @@ public class ProjectMapper {
                 .iconUrl(project.getIconUrl())
                 .price(project.getPrice())
                 .artifactCount(project.getArtifactCount())
-                .userCount(project.getUserRoles() != null ? project.getUserRoles().size() : 0)
+                .userCount(project.getUserRoles() != null ? 
+                    (int) project.getUserRoles().stream()
+                        .filter(pur -> !"APP_ADMIN".equals(pur.getUser().getGlobalRole()))
+                        .count() : 0)
                 .createdAt(project.getCreatedAt())
                 .updatedAt(project.getUpdatedAt())
                 .build();
@@ -47,7 +50,9 @@ public class ProjectMapper {
     }
 
     public ProjectWithUsersDto toProjectWithUsersDto(Project project) {
+        // Filter out APP_ADMIN users - they have global access and shouldn't appear as team members
         List<UserRoleDto> userRoles = project.getUserRoles().stream()
+                .filter(pur -> !"APP_ADMIN".equals(pur.getUser().getGlobalRole()))
                 .map(pur -> UserRoleDto.builder()
                         .userId(pur.getUser().getId())
                         .fullName(pur.getUser().getFullName())

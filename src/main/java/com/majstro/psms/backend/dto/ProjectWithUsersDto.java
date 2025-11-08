@@ -10,7 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class ProjectWithUsersDto {
-    private Long id;
+    private String id;
     private String projectName;
     private String description;
     private String clientName;

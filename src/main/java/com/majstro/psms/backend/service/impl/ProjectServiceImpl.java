@@ -32,7 +32,7 @@ public class ProjectServiceImpl implements IProjectService {
 
     @Override
     @Transactional
-    public ProjectDto createProject(ProjectDto projectDto, Long creatorUserId) {
+    public ProjectDto createProject(ProjectDto projectDto, String creatorUserId) {
         if (projectRepository.existsByProjectName(projectDto.getProjectName())) {
             throw new IllegalArgumentException("Project name already exists: " + projectDto.getProjectName());
         }
@@ -41,28 +41,35 @@ public class ProjectServiceImpl implements IProjectService {
         Project project = projectMapper.toEntity(projectDto);
         Project saved = projectRepository.save(project);
 
-        // Automatically add the creator as ADMIN
+        // Automatically add the creator as ADMIN (but NOT if they are APP_ADMIN)
+        // APP_ADMIN has global access and doesn't need to be added to individual projects
         if (creatorUserId != null) {
             User creator = userRepository.findById(creatorUserId)
                     .orElseThrow(() -> new EntityNotFoundException("Creator user not found"));
 
-            ProjectUserRole adminRole = ProjectUserRole.builder()
-                    .project(saved)
-                    .user(creator)
-                    .role(ProjectRole.ADMIN)
-                    .build();
+            // Only add to project if user is NOT APP_ADMIN
+            if (!"APP_ADMIN".equals(creator.getGlobalRole())) {
+                ProjectUserRole adminRole = ProjectUserRole.builder()
+                        .project(saved)
+                        .user(creator)
+                        .role(ProjectRole.ADMIN)
+                        .build();
 
-            projectUserRoleRepository.save(adminRole);
+                projectUserRoleRepository.save(adminRole);
 
-            log.info("User {} created project {} and was added as ADMIN",
-                creator.getEmail(), saved.getProjectName());
+                log.info("User {} created project {} and was added as ADMIN",
+                    creator.getEmail(), saved.getProjectName());
+            } else {
+                log.info("APP_ADMIN user {} created project {} (not added to team - has global access)",
+                    creator.getEmail(), saved.getProjectName());
+            }
         }
 
         return projectMapper.toDto(saved);
     }
 
     @Override
-    public ProjectWithUsersDto getProjectById(Long id) {
+    public ProjectWithUsersDto getProjectById(String id) {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found with ID: " + id));
         return projectMapper.toProjectWithUsersDto(project);
@@ -77,7 +84,7 @@ public class ProjectServiceImpl implements IProjectService {
     }
 
     @Override
-    public ProjectDto updateProject(Long id, ProjectDto projectDto) {
+    public ProjectDto updateProject(String id, ProjectDto projectDto) {
         Project existing = projectRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found with ID: " + id));
 
@@ -95,7 +102,7 @@ public class ProjectServiceImpl implements IProjectService {
     }
 
     @Override
-    public void deleteProject(Long id) {
+    public void deleteProject(String id) {
         if (!projectRepository.existsById(id)) {
             throw new EntityNotFoundException("Project not found with ID: " + id);
         }
@@ -104,7 +111,7 @@ public class ProjectServiceImpl implements IProjectService {
 
     @Override
     @Transactional
-    public void removeUserFromProject(Long projectId, Long userId) {
+    public void removeUserFromProject(String projectId, String userId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found with ID: " + projectId));
         
