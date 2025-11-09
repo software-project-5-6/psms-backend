@@ -20,6 +20,6 @@ public interface IUserService {
     // Get currently logged-in user (based on JWT)
     UserDto getCurrentUser();
 
-    // Delete a user by ID (optional, admin only)
+    // Delete a user by ID (admin only)
     void deleteUser(String id);
 }

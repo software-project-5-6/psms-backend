@@ -31,7 +31,7 @@ public class UserSyncServiceImpl implements IUserSyncService {
                     .build();
 
             userRepository.save(user);
-            System.out.println("✅ New user created: " + email + " [" + globalRole + "]");
+            System.out.println(" New user created: " + email + " [" + globalRole + "]");
         }
     }
 

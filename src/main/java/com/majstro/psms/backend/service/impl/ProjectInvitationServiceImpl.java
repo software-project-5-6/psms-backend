@@ -102,7 +102,7 @@ public class ProjectInvitationServiceImpl implements IProjectInvitationService {
             sendInvitationEmail(invitation, project);
         } catch (Exception e) {
             log.error("Failed to send invitation email: {}", e.getMessage());
-            // Continue - invitation is saved
+            
         }
 
         log.info("Invitation sent to {} for project {}", emailLower, project.getProjectName());
@@ -140,7 +140,7 @@ public class ProjectInvitationServiceImpl implements IProjectInvitationService {
         Project project = projectRepository.findById(invite.getProject().getId())
                 .orElseThrow(() -> new RuntimeException("Project not found"));
 
-        // CRITICAL: Check if already a member BEFORE making any database changes
+        //Check if already a member BEFORE making any database changes
         boolean isAlreadyMember = projectUserRoleRepository.existsByProjectAndUser(project, user);
         
         if (isAlreadyMember) {

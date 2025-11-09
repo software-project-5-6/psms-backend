@@ -76,13 +76,12 @@ public class Project {
         projectUserRole.setProject(null);
     }
 
-    /**
-     * JPA lifecycle callback to generate custom ID before persisting
-     */
+    
+     //JPA lifecycle callback to generate custom ID before persisting
     @PrePersist
     public void generateId() {
         if (this.id == null) {
-            this.id = IdGenerator.generateIdWithPrefix("P"); // P for Project (e.g., PA12, PX45)
+            this.id = IdGenerator.generateIdWithPrefix("P"); 
         }
     }
 }
