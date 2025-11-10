@@ -39,13 +39,6 @@ public class UserController {
 
 
     @PreAuthorize("hasAuthority('APP_ADMIN')")
-    @GetMapping("/sub/{cognitoSub}")
-    public ResponseEntity<UserDto> getUserByCognitoSub(@PathVariable String cognitoSub) {
-        return ResponseEntity.ok(userService.getUserByCognitoSub(cognitoSub));
-    }
-
-
-    @PreAuthorize("hasAuthority('APP_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);

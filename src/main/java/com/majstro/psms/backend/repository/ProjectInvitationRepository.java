@@ -2,6 +2,7 @@ package com.majstro.psms.backend.repository;
 
 import com.majstro.psms.backend.entity.Project;
 import com.majstro.psms.backend.entity.ProjectInvitation;
+import com.majstro.psms.backend.entity.ProjectUserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,5 +16,6 @@ public interface ProjectInvitationRepository extends JpaRepository<ProjectInvita
     List<ProjectInvitation> findByProjectAndEmail(Project project, String email);
 
     List<ProjectInvitation> findByProjectAndStatus(Project project, String status);
+
 }
 

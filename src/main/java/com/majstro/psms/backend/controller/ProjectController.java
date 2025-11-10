@@ -5,6 +5,7 @@ import com.majstro.psms.backend.dto.ProjectWithUsersDto;
 import com.majstro.psms.backend.entity.User;
 import com.majstro.psms.backend.repository.UserRepository;
 import com.majstro.psms.backend.service.IProjectService;
+import com.majstro.psms.backend.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,14 +20,15 @@ import java.util.List;
 public class ProjectController {
 
     private final IProjectService projectService;
-    private final UserRepository userRepository;
+    private final IUserService userService;
 
     @PostMapping
     public ResponseEntity<ProjectDto> createProject(
             @RequestBody ProjectDto projectDto,
-            @AuthenticationPrincipal Jwt jwt) {
+            @AuthenticationPrincipal Jwt jwt) //in auth2 resource servers the principle field of the authentication object hold jwt type
+    {
 
-        String creatorUserId = getUserIdFromJwt(jwt);
+        String creatorUserId = userService.getUserIdFromJwt(jwt);
         ProjectDto created = projectService.createProject(projectDto, creatorUserId);
         return ResponseEntity.ok(created);
     }
@@ -63,17 +65,4 @@ public class ProjectController {
         return ResponseEntity.noContent().build();
     }
 
-    private String getUserIdFromJwt(Jwt jwt) {
-        if (jwt == null) {
-            return null;
-        }
-
-        String cognitoSub = jwt.getClaimAsString("sub");
-        if (cognitoSub != null) {
-            User user = userRepository.findByCognitoSub(cognitoSub)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            return user.getId();
-        }
-        return null;
-    }
 }

@@ -5,6 +5,7 @@ import com.majstro.psms.backend.dto.ProjectInvitationDTO;
 import com.majstro.psms.backend.entity.User;
 import com.majstro.psms.backend.repository.UserRepository;
 import com.majstro.psms.backend.service.IProjectInvitationService;
+import com.majstro.psms.backend.service.IUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,14 +21,14 @@ import java.util.List;
 public class ProjectInvitationController {
 
     private final IProjectInvitationService invitationService;
-    private final UserRepository userRepository;
+    private final IUserService userService;
 
     @PostMapping
     public ResponseEntity<?> inviteUser(
             @Valid @RequestBody InviteRequest request,
             @AuthenticationPrincipal Jwt jwt) {
 
-        String inviterId = getUserIdFromJwt(jwt);
+        String inviterId = userService.getUserIdFromJwt(jwt);
         invitationService.sendInvitation(request.projectId(), request, inviterId);
         return ResponseEntity.ok("Invitation sent successfully to " + request.email());
     }
@@ -47,8 +48,8 @@ public class ProjectInvitationController {
             @PathVariable String projectId,
             @AuthenticationPrincipal Jwt jwt) {
 
-        String userId = getUserIdFromJwt(jwt);
-        List<ProjectInvitationDTO> invitations = invitationService.getPendingInvitations(projectId, userId);
+        String userId = userService.getUserIdFromJwt(jwt);
+        List<ProjectInvitationDTO> invitations = invitationService.getPendingInvitations(projectId);
         return ResponseEntity.ok(invitations);
     }
 
@@ -57,8 +58,8 @@ public class ProjectInvitationController {
             @PathVariable Long invitationId,
             @AuthenticationPrincipal Jwt jwt) {
 
-        String userId = getUserIdFromJwt(jwt);
-        invitationService.revokeInvitation(invitationId, userId);
+        String userId = userService.getUserIdFromJwt(jwt);
+        invitationService.revokeInvitation(invitationId);
         return ResponseEntity.ok("Invitation revoked successfully");
     }
 
@@ -67,26 +68,9 @@ public class ProjectInvitationController {
             @PathVariable Long invitationId,
             @AuthenticationPrincipal Jwt jwt) {
 
-        String userId = getUserIdFromJwt(jwt);
-        invitationService.resendInvitation(invitationId, userId);
+        String userId = userService.getUserIdFromJwt(jwt);
+        invitationService.resendInvitation(invitationId);
         return ResponseEntity.ok("Invitation resent successfully");
     }
 
-    @GetMapping("/token/{token}")
-    public ResponseEntity<ProjectInvitationDTO> getInvitationByToken(
-            @PathVariable String token) {
-
-        ProjectInvitationDTO invitation = invitationService.getInvitationByToken(token);
-        return ResponseEntity.ok(invitation);
-    }
-
-    private String getUserIdFromJwt(Jwt jwt) {
-        String cognitoSub = jwt != null ? jwt.getClaimAsString("sub") : null;
-        if (cognitoSub != null) {
-            User user = userRepository.findByCognitoSub(cognitoSub)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            return user.getId();
-        }
-        throw new RuntimeException("Authentication required");
-    }
 }

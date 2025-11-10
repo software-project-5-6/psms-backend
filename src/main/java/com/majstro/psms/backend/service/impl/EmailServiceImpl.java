@@ -24,9 +24,9 @@ public class EmailServiceImpl implements IEmailService {
             message.setFrom("your_email@gmail.com"); // optional, or use from config
             mailSender.send(message);
 
-            System.out.println("✅ Invitation email sent to: " + to);
+            System.out.println("Invitation email sent to: " + to);
         } catch (Exception e) {
-            System.err.println("❌ Failed to send email to " + to + ": " + e.getMessage());
+            System.err.println("Failed to send email to " + to + ": " + e.getMessage());
             throw new RuntimeException("Error sending email", e);
         }
     }

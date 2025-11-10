@@ -39,13 +39,6 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public UserDto getUserByCognitoSub(String cognitoSub) {
-        User user = userRepository.findByCognitoSub(cognitoSub)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with Cognito Sub: " + cognitoSub));
-        return userMapper.toDto(user);
-    }
-
-    @Override
     public UserDto getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !(auth.getPrincipal() instanceof Jwt jwt)) {
@@ -66,5 +59,19 @@ public class UserServiceImpl implements IUserService {
             throw new EntityNotFoundException("User not found with ID: " + id);
         }
         userRepository.deleteById(id);
+    }
+
+    public String getUserIdFromJwt(Jwt jwt) {
+        if (jwt == null) {
+            return null;
+        }
+
+        String cognitoSub = jwt.getClaimAsString("sub");
+        if (cognitoSub != null) {
+            User user = userRepository.findByCognitoSub(cognitoSub)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            return user.getId();
+        }
+        return null;
     }
 }

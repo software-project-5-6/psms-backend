@@ -34,9 +34,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/public/**", "/swagger-ui/**",
-                                "/swagger-ui.html", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/v1/auth/sync").authenticated()
+                        .requestMatchers("/swagger-ui/**","/swagger-ui.html").permitAll()
+                        .requestMatchers("/api/auth/v1/sync").authenticated()
                         .requestMatchers("/api/admin/**").hasAuthority("APP_ADMIN")
                         .requestMatchers("/api/user/**").hasAnyAuthority("APP_ADMIN", "APP_USER")
                         .anyRequest().authenticated()
@@ -71,7 +70,7 @@ public class SecurityConfig {
                 "http://localhost:5173"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type", "X-Requested-With", "Accept"));
+        config.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type", "Accept"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
 

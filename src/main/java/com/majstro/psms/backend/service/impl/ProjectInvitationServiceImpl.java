@@ -186,32 +186,24 @@ public class ProjectInvitationServiceImpl implements IProjectInvitationService {
         }
     }
 
-    @Override
-    public ProjectInvitationDTO getInvitationByToken(String token) {
-        ProjectInvitation invite = invitationRepository.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("Invitation not found"));
-        return ProjectInvitationMapper.toDto(invite);
-    }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProjectInvitationDTO> getPendingInvitations(String projectId, String userId) {
+    public List<ProjectInvitationDTO> getPendingInvitations(String projectId) {
+
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
 
-        // No permission checks - let frontend handle conditional rendering
         List<ProjectInvitation> invitations = invitationRepository.findByProjectAndStatus(project, "PENDING");
         return ProjectInvitationMapper.toDtoList(invitations);
     }
 
     @Override
     @Transactional
-    public void revokeInvitation(Long invitationId, String userId) {
+    public void revokeInvitation(Long invitationId) {
         ProjectInvitation invitation = invitationRepository.findById(invitationId)
                 .orElseThrow(() -> new RuntimeException("Invitation not found"));
 
-        // No permission checks - let frontend handle conditional rendering
-        
         if (!invitation.isPending()) {
             throw new RuntimeException("Only pending invitations can be revoked");
         }
@@ -224,11 +216,9 @@ public class ProjectInvitationServiceImpl implements IProjectInvitationService {
 
     @Override
     @Transactional
-    public void resendInvitation(Long invitationId, String userId) {
+    public void resendInvitation(Long invitationId) {
         ProjectInvitation invitation = invitationRepository.findById(invitationId)
                 .orElseThrow(() -> new RuntimeException("Invitation not found"));
-
-        // No permission checks - let frontend handle conditional rendering
 
         if (!invitation.isPending()) {
             throw new RuntimeException("Only pending invitations can be resent");
