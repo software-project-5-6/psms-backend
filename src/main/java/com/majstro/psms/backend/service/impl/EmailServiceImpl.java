@@ -21,7 +21,7 @@ public class EmailServiceImpl implements IEmailService {
             message.setTo(to);
             message.setSubject(subject);
             message.setText(body);
-            message.setFrom("your_email@gmail.com"); // optional, or use from config
+            message.setFrom("niroshanb14@gmail.com");
             mailSender.send(message);
 
             System.out.println("Invitation email sent to: " + to);

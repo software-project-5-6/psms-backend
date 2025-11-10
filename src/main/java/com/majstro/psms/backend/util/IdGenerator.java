@@ -2,7 +2,6 @@ package com.majstro.psms.backend.util;
 
 import java.security.SecureRandom;
 
-
 public class IdGenerator {
 
     private static final String LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -22,11 +21,9 @@ public class IdGenerator {
         
         StringBuilder id = new StringBuilder(4);
         id.append(prefix.toUpperCase());
-        
-        
+
         id.append(LETTERS.charAt(random.nextInt(LETTERS.length())));
-        
-        
+
         for (int i = 0; i < 2; i++) {
             id.append(NUMBERS.charAt(random.nextInt(NUMBERS.length())));
         }
