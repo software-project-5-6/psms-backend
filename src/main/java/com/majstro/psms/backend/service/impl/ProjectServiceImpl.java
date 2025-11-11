@@ -14,6 +14,9 @@ import com.majstro.psms.backend.service.IProjectService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -77,8 +80,28 @@ public class ProjectServiceImpl implements IProjectService {
 
     @Override
     public List<ProjectDto> getAllProjects() {
-        return projectRepository.findAll()
-                .stream()
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+
+        String userId = jwt.getClaimAsString("sub");
+        List<String> groups = jwt.getClaimAsStringList("cognito:groups");
+
+        User user = userRepository.findByCognitoSub(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with sub: " + userId));
+
+        List<Project> projects;
+
+        if (groups != null && groups.contains("APP_ADMIN")) {
+            projects = projectRepository.findAll();
+        } else {
+            projects = projectUserRoleRepository.findByUser(user)
+                    .stream()
+                    .map(ProjectUserRole::getProject)
+                    .distinct()
+                    .collect(Collectors.toList());
+        }
+
+        return projects.stream()
                 .map(projectMapper::toDto)
                 .collect(Collectors.toList());
     }
