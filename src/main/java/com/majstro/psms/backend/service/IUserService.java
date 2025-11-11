@@ -14,12 +14,11 @@ public interface IUserService {
     // Get a single user by ID
     UserDto getUserById(String id);
 
-    // Get a user by Cognito sub
-    UserDto getUserByCognitoSub(String cognitoSub);
-
     // Get currently logged-in user (based on JWT)
     UserDto getCurrentUser();
 
     // Delete a user by ID (admin only)
     void deleteUser(String id);
+
+    String getUserIdFromJwt(Jwt jwt);
 }

@@ -21,12 +21,12 @@ public class EmailServiceImpl implements IEmailService {
             message.setTo(to);
             message.setSubject(subject);
             message.setText(body);
-            message.setFrom("your_email@gmail.com"); // optional, or use from config
+            message.setFrom("niroshanb14@gmail.com");
             mailSender.send(message);
 
-            System.out.println("✅ Invitation email sent to: " + to);
+            System.out.println("Invitation email sent to: " + to);
         } catch (Exception e) {
-            System.err.println("❌ Failed to send email to " + to + ": " + e.getMessage());
+            System.err.println("Failed to send email to " + to + ": " + e.getMessage());
             throw new RuntimeException("Error sending email", e);
         }
     }
