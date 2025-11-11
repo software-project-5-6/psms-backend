@@ -15,6 +15,8 @@ public interface ProjectUserRoleRepository extends JpaRepository<ProjectUserRole
     // Find all users assigned to a project
     List<ProjectUserRole> findByProject(Project project);
 
+    List<ProjectUserRole> findByUser(User user);// to find all projects for a user
+
     // Check if a user already belongs to a project
     Optional<ProjectUserRole> findByProjectAndUser(Project project, User user);
 
