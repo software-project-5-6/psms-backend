@@ -13,5 +13,7 @@ public class ArtifactSummaryDto {
     private String originalFilename;
     private String type;
     private long size;
+    private String uploadedBy;
+    private String tags;
     private LocalDateTime uploadedAt;
 }

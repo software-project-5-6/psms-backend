@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ArtifactRepository extends JpaRepository<Artifact, Long> {
-    List<Artifact> findByProjectId(Long projectId);
+    List<Artifact> findByProject_Id(String projectId);
     Optional<Artifact> findByIdAndProject_Id(Long id, String projectId);
+    void deleteByIdAndProject_Id(Long id, String projectId);
 }

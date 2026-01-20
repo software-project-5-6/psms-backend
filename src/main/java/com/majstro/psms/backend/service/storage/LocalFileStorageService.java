@@ -21,7 +21,7 @@ public class LocalFileStorageService implements FileStorageService {
     @Override
     public String store(MultipartFile file, String projectId, Long artifactId) {
         try {
-            Path dir = Paths.get(basePath, projectId.toString(), "artifacts");
+            Path dir = Paths.get(basePath, projectId, "artifacts");
             Files.createDirectories(dir);
 
             String storedName = artifactId + "_" + file.getOriginalFilename();
@@ -40,7 +40,17 @@ public class LocalFileStorageService implements FileStorageService {
         try {
             return new UrlResource(Paths.get(path).toUri());
         } catch (Exception e) {
-            throw new RuntimeException("File not found",e);
+            throw new RuntimeException("File not found", e);
+        }
+    }
+
+    @Override
+    public void delete(String path) {
+        try {
+            Path filePath = Paths.get(path);
+            Files.deleteIfExists(filePath);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to delete file", e);
         }
     }
 }

@@ -23,6 +23,8 @@ public class ArtifactMapper {
                 .originalFilename(artifact.getOriginalFilename())
                 .type(artifact.getType().name())
                 .size(artifact.getSize())
+                .uploadedBy(artifact.getUploadedBy())
+                .tags(artifact.getTags())
                 .uploadedAt(artifact.getUploadedAt())
                 .build();
     }
