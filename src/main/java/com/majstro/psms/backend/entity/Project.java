@@ -8,6 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -61,8 +62,8 @@ public class Project {
     private Set<ProjectUserRole> userRoles = new HashSet<>();
 
 
-    // @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    // private List<Artifact> artifacts;
+     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+     private List<Artifact> artifacts;
 
 
     //Helpler methods
