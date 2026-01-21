@@ -1,5 +1,6 @@
 package com.majstro.psms.backend.config;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.*;
@@ -25,7 +26,7 @@ public class SwaggerConfig {
                                         .addString("openid", "OpenID scope")
                                         .addString("email", "Access to email")
                                         .addString("profile", "Access to user profile")
-                                        .addString("aws.cognito.signin.user.admin", "Cognito admin access")
+
                                 )
                         )
                 );
@@ -36,7 +37,7 @@ public class SwaggerConfig {
                         .description("Swagger integrated with AWS Cognito PKCE authorization")
                         .version("1.0.0"))
                 .addSecurityItem(new SecurityRequirement().addList("oauth2"))
-                .components(new io.swagger.v3.oas.models.Components()
+                .components(new Components()
                         .addSecuritySchemes("oauth2", oauthScheme));
     }
 }
