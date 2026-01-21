@@ -17,4 +17,11 @@ public class BackendApplication {
 		SpringApplication.run(BackendApplication.class, args);
 	}
 
+    @Bean
+    CommandLineRunner serverStatus() {
+        return args -> {
+            System.out.println("Server is running successfully!");
+        };
+    }
+
 }
