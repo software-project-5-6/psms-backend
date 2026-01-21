@@ -125,7 +125,6 @@ public class ProjectServiceImpl implements IProjectService {
         existing.setClientPhone(projectDto.getClientPhone());
         existing.setIconUrl(projectDto.getIconUrl());
         existing.setPrice(projectDto.getPrice());
-        existing.setArtifactCount(projectDto.getArtifactCount());
 
         Project updated = projectRepository.save(existing);
         return projectMapper.toDto(updated);

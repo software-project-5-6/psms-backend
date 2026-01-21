@@ -45,7 +45,6 @@ public class ProjectMapper {
                 .clientPhone(dto.getClientPhone())
                 .iconUrl(dto.getIconUrl())
                 .price(dto.getPrice())
-                .artifactCount(dto.getArtifactCount())
                 .build();
     }
 
