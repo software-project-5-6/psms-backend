@@ -7,7 +7,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
+import java.util.ArrayList; // Change 1: Add this import
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -41,10 +43,6 @@ public class Project {
     @Column(name = "icon_url", length = 255)
     private String iconUrl;
 
-    @Column(name = "price")
-    private Double price;
-
-
     @Column(name = "artifact_count")
     private Integer artifactCount = 0;
 
@@ -60,12 +58,11 @@ public class Project {
     @Builder.Default
     private Set<ProjectUserRole> userRoles = new HashSet<>();
 
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Artifact> artifacts;
 
-    // @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    // private List<Artifact> artifacts;
 
-
-    //Helpler methods
+    //Helper methods
     public void addUserRole(ProjectUserRole projectUserRole) {
         userRoles.add(projectUserRole);
         projectUserRole.setProject(this);
@@ -76,12 +73,11 @@ public class Project {
         projectUserRole.setProject(null);
     }
 
-    
-     //JPA lifecycle callback to generate custom ID before persisting
+    //JPA lifecycle callback to generate custom ID before persisting
     @PrePersist
     public void generateId() {
         if (this.id == null) {
-            this.id = IdGenerator.generateIdWithPrefix("P"); 
+            this.id = IdGenerator.generateIdWithPrefix("P");
         }
     }
 }

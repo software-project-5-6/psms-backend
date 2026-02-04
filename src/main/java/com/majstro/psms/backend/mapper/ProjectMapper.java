@@ -22,7 +22,6 @@ public class ProjectMapper {
                 .clientEmail(project.getClientEmail())
                 .clientPhone(project.getClientPhone())
                 .iconUrl(project.getIconUrl())
-                .price(project.getPrice())
                 .artifactCount(project.getArtifactCount())
                 .userCount(project.getUserRoles() != null ? 
                     (int) project.getUserRoles().stream()
@@ -44,7 +43,6 @@ public class ProjectMapper {
                 .clientEmail(dto.getClientEmail())
                 .clientPhone(dto.getClientPhone())
                 .iconUrl(dto.getIconUrl())
-                .price(dto.getPrice())
                 .artifactCount(dto.getArtifactCount())
                 .build();
     }
@@ -69,7 +67,6 @@ public class ProjectMapper {
                 .clientEmail(project.getClientEmail())
                 .clientPhone(project.getClientPhone())
                 .iconUrl(project.getIconUrl())
-                .price(project.getPrice())
                 .artifactCount(project.getArtifactCount())
                 .createdAt(project.getCreatedAt())
                 .updatedAt(project.getUpdatedAt())

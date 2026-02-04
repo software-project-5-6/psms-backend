@@ -79,6 +79,13 @@ public class ProjectServiceImpl implements IProjectService {
     }
 
     @Override
+    public Project getProjectEntityById(String id) {
+        return projectRepository.findById(id)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Project not found with ID: " + id));
+    }
+
+    @Override
     public List<ProjectDto> getAllProjects() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Jwt jwt = (Jwt) authentication.getPrincipal();
@@ -117,7 +124,6 @@ public class ProjectServiceImpl implements IProjectService {
         existing.setClientEmail(projectDto.getClientEmail());
         existing.setClientPhone(projectDto.getClientPhone());
         existing.setIconUrl(projectDto.getIconUrl());
-        existing.setPrice(projectDto.getPrice());
         existing.setArtifactCount(projectDto.getArtifactCount());
 
         Project updated = projectRepository.save(existing);

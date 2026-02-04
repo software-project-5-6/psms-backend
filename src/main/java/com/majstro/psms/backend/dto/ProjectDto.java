@@ -19,7 +19,6 @@ public class ProjectDto {
     private String clientEmail;
     private String clientPhone;
     private String iconUrl;
-    private Double price;
     private Integer artifactCount;
     private Integer userCount;
     private Instant createdAt;

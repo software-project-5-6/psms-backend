@@ -2,6 +2,7 @@ package com.majstro.psms.backend.service;
 
 import com.majstro.psms.backend.dto.ProjectDto;
 import com.majstro.psms.backend.dto.ProjectWithUsersDto;
+import com.majstro.psms.backend.entity.Project;
 
 import java.util.List;
 
@@ -18,4 +19,6 @@ public interface IProjectService {
     void deleteProject(String id);
 
     void removeUserFromProject(String projectId, String userId);
+
+    Project getProjectEntityById(String id);
 }
