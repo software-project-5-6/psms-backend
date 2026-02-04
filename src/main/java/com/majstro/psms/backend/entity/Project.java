@@ -42,10 +42,6 @@ public class Project {
     @Column(name = "icon_url", length = 255)
     private String iconUrl;
 
-    @Column(name = "price")
-    private Double price;
-
-
     @Column(name = "artifact_count")
     private Integer artifactCount = 0;
 

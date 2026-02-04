@@ -17,7 +17,6 @@ public class ProjectWithUsersDto {
     private String clientEmail;
     private String clientPhone;
     private String iconUrl;
-    private Double price;
     private Integer artifactCount;
     private Instant createdAt;
     private Instant updatedAt;

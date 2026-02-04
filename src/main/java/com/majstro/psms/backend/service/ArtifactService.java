@@ -4,6 +4,7 @@ import com.majstro.psms.backend.entity.Artifact;
 import com.majstro.psms.backend.entity.ArtifactType;
 import com.majstro.psms.backend.entity.Project;
 import com.majstro.psms.backend.repository.ArtifactRepository;
+import com.majstro.psms.backend.repository.ProjectRepository;
 import com.majstro.psms.backend.service.storage.FileStorageService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class ArtifactService {
 
     private final ArtifactRepository artifactRepository;
     private final FileStorageService storageService;
+    private final ProjectRepository projectRepository;
 
     @Transactional
     public Artifact upload(MultipartFile file, Project project, ArtifactType type, String uploadedBy, String tags) {
@@ -56,6 +58,10 @@ public class ArtifactService {
         String path = storageService.store(file, project.getId(), artifact.getId());
         artifact.setStoragePath(path);
 
+        // Update project artifact count
+        project.setArtifactCount((project.getArtifactCount() == null ? 0 : project.getArtifactCount()) + 1);
+        projectRepository.save(project);
+
         return artifactRepository.save(artifact);
     }
 
@@ -72,6 +78,8 @@ public class ArtifactService {
     @Transactional
     public void deleteArtifact(Long artifactId, String projectId) {
         Artifact artifact = getArtifactForProject(artifactId, projectId);
+        Project project = artifact.getProject();
+        
         // Delete physical file
         try {
             storageService.delete(artifact.getStoragePath());
@@ -80,6 +88,12 @@ public class ArtifactService {
             System.err.println("Failed to delete physical file: " + e.getMessage());
         }
         artifactRepository.deleteByIdAndProject_Id(artifactId, projectId);
+        
+        // Update project artifact count
+        if (project.getArtifactCount() != null && project.getArtifactCount() > 0) {
+            project.setArtifactCount(project.getArtifactCount() - 1);
+            projectRepository.save(project);
+        }
     }
 
     public Resource loadArtifactFile(Artifact artifact) {

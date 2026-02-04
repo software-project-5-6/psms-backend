@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/projects/{projectId}/artifacts")
+@RequestMapping("/api/v1/projects/{projectId}/artifacts")
 @RequiredArgsConstructor
 public class ArtifactController {
 
