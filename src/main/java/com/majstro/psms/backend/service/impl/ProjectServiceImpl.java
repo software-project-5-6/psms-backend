@@ -6,6 +6,7 @@ import com.majstro.psms.backend.entity.Project;
 import com.majstro.psms.backend.entity.ProjectRole;
 import com.majstro.psms.backend.entity.ProjectUserRole;
 import com.majstro.psms.backend.entity.User;
+import com.majstro.psms.backend.exception.ResourceAlreadyExistsException;
 import com.majstro.psms.backend.mapper.ProjectMapper;
 import com.majstro.psms.backend.repository.ProjectRepository;
 import com.majstro.psms.backend.repository.ProjectUserRoleRepository;
@@ -37,7 +38,7 @@ public class ProjectServiceImpl implements IProjectService {
     @Transactional
     public ProjectDto createProject(ProjectDto projectDto, String creatorUserId) {
         if (projectRepository.existsByProjectName(projectDto.getProjectName())) {
-            throw new IllegalArgumentException("Project name already exists: " + projectDto.getProjectName());
+            throw new ResourceAlreadyExistsException("Project name already exists: " + projectDto.getProjectName());
         }
 
         // Create the project

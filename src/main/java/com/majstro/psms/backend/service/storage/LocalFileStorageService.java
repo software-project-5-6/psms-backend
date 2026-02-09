@@ -1,5 +1,6 @@
 package com.majstro.psms.backend.service.storage;
 
+import com.majstro.psms.backend.exception.FileStorageException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -31,7 +32,7 @@ public class LocalFileStorageService implements FileStorageService {
 
             return target.toString();
         } catch (IOException e) {
-            throw new RuntimeException("File upload failed", e);
+            throw new FileStorageException("File upload failed", e);
         }
     }
 
@@ -40,7 +41,7 @@ public class LocalFileStorageService implements FileStorageService {
         try {
             return new UrlResource(Paths.get(path).toUri());
         } catch (Exception e) {
-            throw new RuntimeException("File not found", e);
+            throw new FileStorageException("File not found", e);
         }
     }
 
@@ -50,7 +51,7 @@ public class LocalFileStorageService implements FileStorageService {
             Path filePath = Paths.get(path);
             Files.deleteIfExists(filePath);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to delete file", e);
+            throw new FileStorageException("Failed to delete file", e);
         }
     }
 }

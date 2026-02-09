@@ -3,6 +3,9 @@ package com.majstro.psms.backend.service.impl;
 import com.majstro.psms.backend.dto.InviteRequest;
 import com.majstro.psms.backend.dto.ProjectInvitationDTO;
 import com.majstro.psms.backend.entity.*;
+import com.majstro.psms.backend.exception.InvalidInvitationException;
+import com.majstro.psms.backend.exception.ResourceAlreadyExistsException;
+import com.majstro.psms.backend.exception.UnauthorizedAccessException;
 import com.majstro.psms.backend.mapper.ProjectInvitationMapper;
 import com.majstro.psms.backend.repository.ProjectInvitationRepository;
 import com.majstro.psms.backend.repository.ProjectRepository;
@@ -10,6 +13,7 @@ import com.majstro.psms.backend.repository.ProjectUserRoleRepository;
 import com.majstro.psms.backend.repository.UserRepository;
 import com.majstro.psms.backend.service.IEmailService;
 import com.majstro.psms.backend.service.IProjectInvitationService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,7 +50,7 @@ public class ProjectInvitationServiceImpl implements IProjectInvitationService {
 
         // Find project
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found with ID: " + projectId));
+                .orElseThrow(() -> new EntityNotFoundException("Project not found with ID: " + projectId));
 
         // Check if inviter is a member with permission (only if inviterId provided)
         if (inviterId != null) {
@@ -55,11 +59,11 @@ public class ProjectInvitationServiceImpl implements IProjectInvitationService {
                 // APP_ADMIN can always invite users to any project
                 if (!"APP_ADMIN".equals(inviter.getGlobalRole())) {
                     ProjectUserRole inviterRole = projectUserRoleRepository.findByProjectAndUser(project, inviter)
-                            .orElseThrow(() -> new RuntimeException("You are not a member of this project"));
+                            .orElseThrow(() -> new UnauthorizedAccessException("You are not a member of this project"));
 
                     // Only ADMIN and MANAGER can invite
                     if (inviterRole.getRole() != ProjectRole.ADMIN && inviterRole.getRole() != ProjectRole.MANAGER) {
-                        throw new RuntimeException("Only administrators and managers can send invitations");
+                        throw new UnauthorizedAccessException("Only administrators and managers can send invitations");
                     }
                 }
             }
@@ -71,7 +75,7 @@ public class ProjectInvitationServiceImpl implements IProjectInvitationService {
         if (existingUser != null) {
             boolean isMember = projectUserRoleRepository.existsByProjectAndUser(project, existingUser);
             if (isMember) {
-                throw new RuntimeException("User " + emailLower + " is already a member of this project");
+                throw new ResourceAlreadyExistsException("User " + emailLower + " is already a member of this project");
             }
         }
 
@@ -79,7 +83,7 @@ public class ProjectInvitationServiceImpl implements IProjectInvitationService {
         List<ProjectInvitation> existingInvites = invitationRepository.findByProjectAndEmail(project, emailLower);
         for (ProjectInvitation invite : existingInvites) {
             if (invite.isPending()) {
-                throw new RuntimeException("A pending invitation already exists for " + emailLower);
+                throw new ResourceAlreadyExistsException("A pending invitation already exists for " + emailLower);
             }
         }
 
@@ -112,33 +116,33 @@ public class ProjectInvitationServiceImpl implements IProjectInvitationService {
     @Transactional
     public String acceptInvitation(String token, String userEmail) {
         ProjectInvitation invite = invitationRepository.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("Invalid invitation link"));
+                .orElseThrow(() -> new InvalidInvitationException("Invalid invitation link"));
 
         // Check status
         if (invite.isAccepted()) {
-            throw new RuntimeException("This invitation has already been accepted");
+            throw new InvalidInvitationException("This invitation has already been accepted");
         }
 
         if ("REVOKED".equalsIgnoreCase(invite.getStatus())) {
-            throw new RuntimeException("This invitation has been revoked");
+            throw new InvalidInvitationException("This invitation has been revoked");
         }
 
         if ("EXPIRED".equalsIgnoreCase(invite.getStatus()) || invite.isExpired()) {
-            throw new RuntimeException("This invitation has expired");
+            throw new InvalidInvitationException("This invitation has expired");
         }
 
         // Check email match
         if (!invite.getEmail().equalsIgnoreCase(userEmail.trim())) {
-            throw new RuntimeException("This invitation was sent to " + invite.getEmail());
+            throw new InvalidInvitationException("This invitation was sent to " + invite.getEmail());
         }
 
         // Find user
         User user = userRepository.findByEmail(userEmail.trim())
-                .orElseThrow(() -> new RuntimeException("User account not found. Please sign up first."));
+                .orElseThrow(() -> new EntityNotFoundException("User account not found. Please sign up first."));
 
         // Get project
         Project project = projectRepository.findById(invite.getProject().getId())
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Project not found"));
 
         //Check if already a member BEFORE making any database changes
         boolean isAlreadyMember = projectUserRoleRepository.existsByProjectAndUser(project, user);
@@ -150,7 +154,7 @@ public class ProjectInvitationServiceImpl implements IProjectInvitationService {
                 invite.setStatus("ACCEPTED");
                 invitationRepository.save(invite);
             }
-            throw new RuntimeException("You are already a member of this project");
+            throw new ResourceAlreadyExistsException("You are already a member of this project");
         }
 
         // Add user to project (only if not already a member)
@@ -179,10 +183,10 @@ public class ProjectInvitationServiceImpl implements IProjectInvitationService {
             log.warn("User {} was already added to project {} (race condition)", user.getEmail(), project.getProjectName());
             invite.setStatus("ACCEPTED");
             invitationRepository.save(invite);
-            throw new RuntimeException("You are already a member of this project");
+            throw new ResourceAlreadyExistsException("You are already a member of this project");
         } catch (Exception e) {
             log.error("Error accepting invitation: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to accept invitation: " + e.getMessage());
+            throw new InvalidInvitationException("Failed to accept invitation: " + e.getMessage());
         }
     }
 
@@ -192,7 +196,7 @@ public class ProjectInvitationServiceImpl implements IProjectInvitationService {
     public List<ProjectInvitationDTO> getPendingInvitations(String projectId) {
 
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Project not found"));
 
         List<ProjectInvitation> invitations = invitationRepository.findByProjectAndStatus(project, "PENDING");
         return ProjectInvitationMapper.toDtoList(invitations);
@@ -202,10 +206,10 @@ public class ProjectInvitationServiceImpl implements IProjectInvitationService {
     @Transactional
     public void revokeInvitation(Long invitationId) {
         ProjectInvitation invitation = invitationRepository.findById(invitationId)
-                .orElseThrow(() -> new RuntimeException("Invitation not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Invitation not found"));
 
         if (!invitation.isPending()) {
-            throw new RuntimeException("Only pending invitations can be revoked");
+            throw new InvalidInvitationException("Only pending invitations can be revoked");
         }
 
         invitation.setStatus("REVOKED");
@@ -218,10 +222,10 @@ public class ProjectInvitationServiceImpl implements IProjectInvitationService {
     @Transactional
     public void resendInvitation(Long invitationId) {
         ProjectInvitation invitation = invitationRepository.findById(invitationId)
-                .orElseThrow(() -> new RuntimeException("Invitation not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Invitation not found"));
 
         if (!invitation.isPending()) {
-            throw new RuntimeException("Only pending invitations can be resent");
+            throw new InvalidInvitationException("Only pending invitations can be resent");
         }
 
         // Update expiration

@@ -2,6 +2,7 @@ package com.majstro.psms.backend.service.impl;
 
 
 
+import com.majstro.psms.backend.exception.EmailSendingException;
 import com.majstro.psms.backend.service.IEmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
@@ -27,7 +28,7 @@ public class EmailServiceImpl implements IEmailService {
             System.out.println("Invitation email sent to: " + to);
         } catch (Exception e) {
             System.err.println("Failed to send email to " + to + ": " + e.getMessage());
-            throw new RuntimeException("Error sending email", e);
+            throw new EmailSendingException("Error sending email", e);
         }
     }
 }

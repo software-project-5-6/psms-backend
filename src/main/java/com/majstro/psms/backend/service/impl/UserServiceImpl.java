@@ -69,7 +69,7 @@ public class UserServiceImpl implements IUserService {
         String cognitoSub = jwt.getClaimAsString("sub");
         if (cognitoSub != null) {
             User user = userRepository.findByCognitoSub(cognitoSub)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+                    .orElseThrow(() -> new EntityNotFoundException("User not found"));
             return user.getId();
         }
         return null;
