@@ -5,6 +5,7 @@ import com.majstro.psms.backend.entity.Artifact;
 import com.majstro.psms.backend.entity.ArtifactType;
 import com.majstro.psms.backend.entity.Project;
 import com.majstro.psms.backend.mapper.ArtifactMapper;
+import com.majstro.psms.backend.rag.RagServices;
 import com.majstro.psms.backend.service.ArtifactService;
 import com.majstro.psms.backend.service.IProjectService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class ArtifactController {
 
     private final ArtifactService artifactService;
     private final IProjectService projectService;
+    private final RagServices ragServices;
 
     /**
      * Get all artifacts for a project
@@ -53,6 +55,7 @@ public class ArtifactController {
 
         Project project = projectService.getProjectEntityById(projectId);
         Artifact artifact = artifactService.upload(file, project, type, uploadedBy, tags);
+        ragServices.embbedAndStore(file,uploadedBy,tags,projectId);
         return ResponseEntity.status(HttpStatus.CREATED).body(ArtifactMapper.toUploadResponse(artifact));
     }
 
@@ -87,6 +90,7 @@ public class ArtifactController {
 
         projectService.getProjectEntityById(projectId);
         artifactService.deleteArtifact(artifactId, projectId);
+        ragServices.deleteDocs(projectId);
         return ResponseEntity.noContent().build();
     }
 }

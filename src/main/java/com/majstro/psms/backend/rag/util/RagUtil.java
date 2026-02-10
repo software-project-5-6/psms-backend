@@ -1,6 +1,6 @@
 package com.majstro.psms.backend.rag.util;
 
-import com.majstro.psms.backend.rag.model.RAGDocument;
+import com.majstro.psms.backend.rag.dataModel.RAGDocument;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.tika.TikaDocumentReader;
 import org.springframework.core.io.Resource;
@@ -16,7 +16,8 @@ public class RagUtil {
     public RAGDocument convertToRagDocument(
             MultipartFile file,
             String uploadedBy,
-            String tags) throws IOException {
+            String tags,
+            String projectId) throws IOException {
 
         // Create reader from InputStream
         TikaDocumentReader reader =
@@ -31,11 +32,13 @@ public class RagUtil {
 
         // metadata
         Map<String, Object> metadata = new HashMap<>();
+        metadata.put("projectId",projectId);
         metadata.put("fileName", file.getOriginalFilename());
         metadata.put("uploadedBy", uploadedBy != null ? uploadedBy : "unknown");
         metadata.put("tags", tags != null ? tags : "");
         metadata.put("size", file.getSize());
         metadata.put("type", file.getContentType());
+
 
         return new RAGDocument(
                 UUID.randomUUID().toString(),

@@ -1,4 +1,4 @@
-package com.majstro.psms.backend.rag.model;
+package com.majstro.psms.backend.rag.dataModel;
 
 import java.util.Map;
 

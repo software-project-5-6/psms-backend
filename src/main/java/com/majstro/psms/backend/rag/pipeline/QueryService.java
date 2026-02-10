@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class RagQueryService {
+public class QueryService {
 
     @Autowired
     private VectorStore vectorStore;
@@ -19,11 +19,12 @@ public class RagQueryService {
     @Autowired
     private ChatClient chatClient;
 
-    public String answerUserQuery(String userQuery) {
+    public String answerUserQuery(String userQuery,String projectId) {
 
         SearchRequest request = SearchRequest.builder()
                 .query(userQuery)
                 .topK(5)
+                .filterExpression("projectId == '" + projectId + "'")
                 .build();
 
         List<Document> docs = vectorStore.similaritySearch(request);
