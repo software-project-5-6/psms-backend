@@ -25,7 +25,7 @@ public class ProjectController {
     @PostMapping
     public ResponseEntity<ProjectDto> createProject(
             @RequestBody ProjectDto projectDto,
-            @AuthenticationPrincipal Jwt jwt) //in auth2 resource servers the principle field of the authentication object hold jwt type
+            @AuthenticationPrincipal Jwt jwt)
     {
 
         String creatorUserId = userService.getUserIdFromJwt(jwt);
