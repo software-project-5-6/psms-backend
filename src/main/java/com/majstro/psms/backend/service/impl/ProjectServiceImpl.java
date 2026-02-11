@@ -12,6 +12,7 @@ import com.majstro.psms.backend.repository.ProjectRepository;
 import com.majstro.psms.backend.repository.ProjectUserRoleRepository;
 import com.majstro.psms.backend.repository.UserRepository;
 import com.majstro.psms.backend.service.IProjectService;
+import com.majstro.psms.backend.service.storage.FileStorageService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,7 @@ public class ProjectServiceImpl implements IProjectService {
     private final ProjectMapper projectMapper;
     private final ProjectUserRoleRepository projectUserRoleRepository;
     private final UserRepository userRepository;
+    private final FileStorageService fileStorageService;
 
     @Override
     @Transactional
@@ -132,10 +134,22 @@ public class ProjectServiceImpl implements IProjectService {
     }
 
     @Override
+    @Transactional
     public void deleteProject(String id) {
         if (!projectRepository.existsById(id)) {
             throw new EntityNotFoundException("Project not found with ID: " + id);
         }
+        
+        // Delete physical storage directory before deleting database records
+        try {
+            fileStorageService.deleteProjectDirectory(id);
+            log.info("Deleted storage directory for project: {}", id);
+        } catch (Exception e) {
+            log.error("Failed to delete storage directory for project {}: {}", id, e.getMessage());
+            // Continue with database deletion even if file deletion fails
+        }
+        
+        // Delete project from database (cascade will handle artifacts and user roles)
         projectRepository.deleteById(id);
     }
 

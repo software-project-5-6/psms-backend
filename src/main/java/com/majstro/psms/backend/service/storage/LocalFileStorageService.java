@@ -54,4 +54,30 @@ public class LocalFileStorageService implements FileStorageService {
             throw new FileStorageException("Failed to delete file", e);
         }
     }
+
+    @Override
+    public void deleteProjectDirectory(String projectId) {
+        try {
+            Path projectDir = Paths.get(basePath, projectId);
+            if (Files.exists(projectDir)) {
+                deleteDirectoryRecursively(projectDir);
+            }
+        } catch (IOException e) {
+            throw new FileStorageException("Failed to delete project directory", e);
+        }
+    }
+
+    private void deleteDirectoryRecursively(Path directory) throws IOException {
+        if (Files.exists(directory)) {
+            Files.walk(directory)
+                .sorted((a, b) -> b.compareTo(a)) // Reverse order to delete files before directories
+                .forEach(path -> {
+                    try {
+                        Files.delete(path);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed to delete: " + path, e);
+                    }
+                });
+        }
+    }
 }
