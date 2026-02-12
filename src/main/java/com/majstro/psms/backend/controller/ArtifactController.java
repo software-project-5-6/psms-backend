@@ -17,6 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +27,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/projects/{projectId}/artifacts")
 @RequiredArgsConstructor
 public class ArtifactController {
+
+    private static final Logger log = LoggerFactory.getLogger(ArtifactController.class);
 
     private final ArtifactService artifactService;
     private final IProjectService projectService;
@@ -55,6 +60,7 @@ public class ArtifactController {
 
         Project project = projectService.getProjectEntityById(projectId);
         Artifact artifact = artifactService.upload(file, project, type, uploadedBy, tags);
+
         ragServices.embbedAndStore(file,uploadedBy,tags,projectId);
         return ResponseEntity.status(HttpStatus.CREATED).body(ArtifactMapper.toUploadResponse(artifact));
     }

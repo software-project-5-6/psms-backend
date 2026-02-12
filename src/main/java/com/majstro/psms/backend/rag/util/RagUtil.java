@@ -3,7 +3,7 @@ package com.majstro.psms.backend.rag.util;
 import com.majstro.psms.backend.rag.dataModel.RAGDocument;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.tika.TikaDocumentReader;
-import org.springframework.core.io.Resource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,20 +19,35 @@ public class RagUtil {
             String tags,
             String projectId) throws IOException {
 
-        // Create reader from InputStream
+
+        if (file.isEmpty() || file.getSize() == 0) {
+            throw new IllegalArgumentException("File is empty and cannot be processed for embeddings");
+        }
+
+
         TikaDocumentReader reader =
-                new TikaDocumentReader((Resource) file.getInputStream());
+                new TikaDocumentReader(new InputStreamResource(file.getInputStream()));
 
         List<Document> docs = reader.read();
 
-        // Combine all text
+
+        if (docs.isEmpty()) {
+            throw new IllegalArgumentException("No content could be extracted from the file");
+        }
+
+
         String content = docs.stream()
                 .map(Document::getFormattedContent)
                 .reduce("", (a, b) -> a + "\n" + b);
 
-        // metadata
+
+        if (content.trim().isEmpty()) {
+            throw new IllegalArgumentException("Extracted content is empty and cannot be embedded");
+        }
+
+
         Map<String, Object> metadata = new HashMap<>();
-        metadata.put("projectId",projectId);
+        metadata.put("projectId", projectId);
         metadata.put("fileName", file.getOriginalFilename());
         metadata.put("uploadedBy", uploadedBy != null ? uploadedBy : "unknown");
         metadata.put("tags", tags != null ? tags : "");
@@ -43,7 +58,6 @@ public class RagUtil {
         return new RAGDocument(
                 UUID.randomUUID().toString(),
                 content,
-                metadata
-        );
+                metadata);
     }
 }
