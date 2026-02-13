@@ -62,6 +62,8 @@ public class ArtifactService {
         project.setArtifactCount((project.getArtifactCount() == null ? 0 : project.getArtifactCount()) + 1);
         projectRepository.save(project);
 
+
+
         return artifactRepository.save(artifact);
     }
 

@@ -1,8 +1,11 @@
 package com.majstro.psms.backend.controller;
 
+import com.majstro.psms.backend.dto.AskRequest;
+import com.majstro.psms.backend.dto.AskResponse;
 import com.majstro.psms.backend.dto.ProjectDto;
 import com.majstro.psms.backend.dto.ProjectWithUsersDto;
 import com.majstro.psms.backend.entity.User;
+import com.majstro.psms.backend.rag.RagServices;
 import com.majstro.psms.backend.repository.UserRepository;
 import com.majstro.psms.backend.service.IProjectService;
 import com.majstro.psms.backend.service.IUserService;
@@ -21,6 +24,7 @@ public class ProjectController {
 
     private final IProjectService projectService;
     private final IUserService userService;
+    private final RagServices ragServices;
 
     @PostMapping
     public ResponseEntity<ProjectDto> createProject(
@@ -38,6 +42,14 @@ public class ProjectController {
         ProjectWithUsersDto project = projectService.getProjectById(id);
         return ResponseEntity.ok(project);
     }
+
+    @PostMapping("ask/{id}")
+    public ResponseEntity<AskResponse> askProject(@PathVariable String id, @RequestBody AskRequest request) {
+        String answer = ragServices.query(request.getQuestion(),id);
+
+        return ResponseEntity.ok(new AskResponse(answer));
+    }
+
 
     @GetMapping
     public ResponseEntity<List<ProjectDto>> getAllProjects() {
