@@ -1,5 +1,6 @@
 package com.majstro.psms.backend.service;
 
+import com.majstro.psms.backend.service.IProjectInvitationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

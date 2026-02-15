@@ -23,6 +23,6 @@ public interface ProjectUserRoleRepository extends JpaRepository<ProjectUserRole
     // Check if a user is already a member of a project
     boolean existsByProjectAndUser(Project project, User user);
 
-    // Optional: delete user from project
+    // delete user from project
     void deleteByProjectAndUser(Project project, User user);
 }

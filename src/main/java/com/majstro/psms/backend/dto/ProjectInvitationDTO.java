@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 
-@NoArgsConstructor       // <--- REQUIRED: Adds 'public ProjectInvitationDTO() {}'
-@AllArgsConstructor      // <--- REQUIRED: Adds constructor for @Builder to work
+@NoArgsConstructor      
+@AllArgsConstructor    
 
 public class ProjectInvitationDTO {
     private Long id;

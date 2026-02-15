@@ -265,25 +265,161 @@ public class ProjectInvitationServiceImpl implements IProjectInvitationService {
     private void sendInvitationEmail(ProjectInvitation invitation, Project project) {
         String inviteLink = frontendUrl + "/invite/accept?token=" + invitation.getToken();
         String subject = "Invitation to join " + project.getProjectName();
-        String body = String.format("""
-                Hi,
-                
-                You've been invited to join the project "%s" as a %s.
-                
-                Click the link below to accept:
-                %s
-                
-                This invitation expires on %s.
-                
-                Best regards,
-                Project Management Team
-                """,
-                project.getProjectName(),
-                invitation.getRole(),
-                inviteLink,
-                invitation.getExpiresAt().toLocalDate());
+        
+        String htmlBody = String.format("""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { 
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                        line-height: 1.6; 
+                        color: #333;
+                        margin: 0;
+                        padding: 0;
+                        background-color: #f4f4f4;
+                    }
+                    .container { 
+                        max-width: 600px; 
+                        margin: 40px auto; 
+                        background: white;
+                        border-radius: 12px;
+                        overflow: hidden;
+                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    }
+                    .header { 
+                        background: linear-gradient(135deg, #667eea 0%%, #764ba2 100%%);
+                        color: white;
+                        padding: 40px 30px;
+                        text-align: center;
+                    }
+                    .header h1 {
+                        margin: 0;
+                        font-size: 28px;
+                        font-weight: 600;
+                    }
+                    .content { 
+                        padding: 40px 30px;
+                        background: white;
+                    }
+                    .content h2 {
+                        color: #333;
+                        font-size: 24px;
+                        margin-top: 0;
+                    }
+                    .button { 
+                        display: inline-block;
+                        padding: 14px 32px;
+                        background: #667eea;
+                        color: white;
+                        text-decoration: none;
+                        border-radius: 6px;
+                        font-weight: 600;
+                        margin: 20px 0;
+                        transition: background 0.3s ease;
+                    }
+                    .button:hover {
+                        background: #5568d3;
+                    }
+                    .role-badge { 
+                        display: inline-block;
+                        padding: 6px 16px;
+                        background: #4caf50;
+                        color: white;
+                        border-radius: 20px;
+                        font-weight: 600;
+                        font-size: 14px;
+                    }
+                    .info-box { 
+                        background: #f8f9fa;
+                        border-left: 4px solid #667eea;
+                        padding: 20px;
+                        margin: 20px 0;
+                        border-radius: 4px;
+                    }
+                    .info-box p {
+                        margin: 8px 0;
+                    }
+                    .link-box {
+                        background: #f8f9fa;
+                        padding: 12px;
+                        border-radius: 6px;
+                        margin: 15px 0;
+                        word-break: break-all;
+                    }
+                    .link-box code {
+                        color: #667eea;
+                        font-size: 13px;
+                    }
+                    .expiry-notice {
+                        background: #fff3cd;
+                        border-left: 4px solid #ffc107;
+                        padding: 15px;
+                        margin: 20px 0;
+                        border-radius: 4px;
+                        color: #856404;
+                    }
+                    .footer { 
+                        text-align: center;
+                        padding: 30px;
+                        background: #f8f9fa;
+                        color: #666;
+                        font-size: 13px;
+                        border-top: 1px solid #e0e0e0;
+                    }
+                    .footer p {
+                        margin: 5px 0;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>🎉 Project Invitation</h1>
+                    </div>
+                    <div class="content">
+                        <h2>Hi there! 👋</h2>
+                        <p>You've been invited to join an exciting project and collaborate with the team!</p>
+                        
+                        <div class="info-box">
+                            <p><strong>📁 Project:</strong> %s</p>
+                            <p><strong>👤 Your Role:</strong> <span class="role-badge">%s</span></p>
+                        </div>
+                        
+                        <p>Click the button below to accept the invitation and start collaborating:</p>
+                        
+                        <center>
+                            <a href="%s" class="button">✓ Accept Invitation</a>
+                        </center>
+                        
+                        <p style="color: #666; font-size: 14px; margin-top: 25px;">
+                            Or copy and paste this link into your browser:
+                        </p>
+                        <div class="link-box">
+                            <code>%s</code>
+                        </div>
+                        
+                        <div class="expiry-notice">
+                            <strong>⏰ Important:</strong> This invitation expires on <strong>%s</strong>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <p><strong>Project Management System</strong></p>
+                        <p>If you didn't expect this invitation, you can safely ignore this email.</p>
+                        <p style="margin-top: 15px; color: #999;">© 2026 All rights reserved</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """,
+            project.getProjectName(),
+            invitation.getRole(),
+            inviteLink,
+            inviteLink,
+            invitation.getExpiresAt().toLocalDate());
 
-        emailService.sendEmail(invitation.getEmail(), subject, body);
+        emailService.sendHtmlEmail(invitation.getEmail(), subject, htmlBody);
     }
 
     private boolean isValidRole(String role) {
