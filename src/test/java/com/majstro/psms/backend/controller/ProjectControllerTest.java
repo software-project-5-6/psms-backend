@@ -1,8 +1,10 @@
 package com.majstro.psms.backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.majstro.psms.backend.dto.AskRequest;
 import com.majstro.psms.backend.dto.ProjectDto;
 import com.majstro.psms.backend.dto.ProjectWithUsersDto;
+import com.majstro.psms.backend.rag.RagServices;
 import com.majstro.psms.backend.service.IProjectService;
 import com.majstro.psms.backend.service.IUserService;
 import org.junit.jupiter.api.Test;
@@ -39,13 +41,16 @@ class ProjectControllerTest {
     @MockBean
     private IUserService userService;
 
+    // FIX: RagServices must be mocked because ProjectController depends on it
+    @MockBean
+    private RagServices ragServices;
+
     @Test
     void shouldCreateProject_WhenValidRequest() throws Exception {
         // Arrange
-        // FIX: Using Builder pattern as defined in your DTO
         ProjectDto requestDto = ProjectDto.builder()
                 .id("1")
-                .projectName("New Project") // Correct field name
+                .projectName("New Project")
                 .description("Desc")
                 .build();
 
@@ -58,18 +63,15 @@ class ProjectControllerTest {
         mockMvc.perform(post("/api/v1/projects")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto))
-                        .with(jwt())
-                        .with(csrf()))
+                        .with(jwt())   // Mocks an authenticated user
+                        .with(csrf())) // Required for POST requests in Spring Security
                 .andExpect(status().isOk())
-                // FIX: Verify "projectName" instead of "name"
                 .andExpect(jsonPath("$.projectName").value("New Project"));
     }
 
     @Test
     void shouldGetProjectById() throws Exception {
         // Arrange
-        // Assuming ProjectWithUsersDto also has a NoArgsConstructor or Builder.
-        // If not, you might need to adjust this similarly to ProjectDto.
         ProjectWithUsersDto responseDto = new ProjectWithUsersDto();
         responseDto.setId("1");
         responseDto.setProjectName("Project A");
@@ -82,6 +84,25 @@ class ProjectControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("1"))
                 .andExpect(jsonPath("$.projectName").value("Project A"));
+    }
+
+    @Test
+    void shouldAskProject() throws Exception {
+        // Arrange
+        AskRequest request = new AskRequest();
+        request.setQuestion("What is this project about?");
+
+        String fakeAnswer = "This is a test project.";
+        given(ragServices.query(eq("What is this project about?"), eq("1"))).willReturn(fakeAnswer);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/v1/projects/ask/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                        .with(jwt())
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.answer").value(fakeAnswer)); // Assuming AskResponse has an 'answer' field
     }
 
     @Test
@@ -103,6 +124,26 @@ class ProjectControllerTest {
     }
 
     @Test
+    void shouldUpdateProject() throws Exception {
+        // Arrange
+        ProjectDto requestDto = ProjectDto.builder()
+                .id("1")
+                .projectName("Updated Project")
+                .build();
+
+        given(projectService.updateProject(eq("1"), any(ProjectDto.class))).willReturn(requestDto);
+
+        // Act & Assert
+        mockMvc.perform(put("/api/v1/projects/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto))
+                        .with(jwt())
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.projectName").value("Updated Project"));
+    }
+
+    @Test
     void shouldDeleteProject() throws Exception {
         // Act & Assert
         mockMvc.perform(delete("/api/v1/projects/1")
@@ -110,6 +151,19 @@ class ProjectControllerTest {
                         .with(csrf()))
                 .andExpect(status().isNoContent());
 
+        // Verify the service method was actually called
         verify(projectService).deleteProject("1");
+    }
+
+    @Test
+    void shouldRemoveUserFromProject() throws Exception {
+        // Act & Assert
+        mockMvc.perform(delete("/api/v1/projects/1/users/user-123")
+                        .with(jwt())
+                        .with(csrf()))
+                .andExpect(status().isNoContent());
+
+        // Verify the service method was actually called with right parameters
+        verify(projectService).removeUserFromProject("1", "user-123");
     }
 }
