@@ -19,6 +19,7 @@ public class RagServices {
     private final QueryService queryService;
     private final RagUtil ragUtil;
 
+
     public void embbedAndStore(
             MultipartFile file,
             String uploadedBy,
@@ -44,6 +45,7 @@ public class RagServices {
 
     public String query(String userQuery, String projectId) {
         return queryService.answerUserQuery(userQuery, projectId);
+
     }
 
 
