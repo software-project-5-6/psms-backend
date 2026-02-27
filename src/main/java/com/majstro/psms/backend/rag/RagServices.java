@@ -48,7 +48,6 @@ public class RagServices {
 
     }
 
-
     public void deleteDocs(String projectId) {
         ingestionService.deleteProjectDocs(projectId);
     }
