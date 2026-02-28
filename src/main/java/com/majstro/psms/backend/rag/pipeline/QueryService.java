@@ -44,6 +44,7 @@ public class QueryService {
         var requestModel = new RequestModel(context, userQuery, project);
         var guardedRequest = inputGuardRailExecutor.execute(requestModel);
         String prompt = guardedRequest.buildPrompt();
+        System.out.print(prompt);
 
         // call LLM (CURRENT API)
         return chatClient
