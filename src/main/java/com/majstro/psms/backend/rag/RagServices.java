@@ -1,6 +1,6 @@
 package com.majstro.psms.backend.rag;
 
-import com.majstro.psms.backend.rag.dataModel.RAGDocument;
+import com.majstro.psms.backend.rag.dataModel.VectorDataBlock;
 import com.majstro.psms.backend.rag.ingestion.IngestionService;
 import com.majstro.psms.backend.rag.pipeline.QueryService;
 import com.majstro.psms.backend.rag.util.RagUtil;
@@ -20,26 +20,32 @@ public class RagServices {
     private final RagUtil ragUtil;
 
 
-    public void embbedAndStore(
+    public void embbedAndStoreDocument(
             MultipartFile file,
             String uploadedBy,
             String tags,
             String projectId) {
 
 
-        RAGDocument ragDocument = null;
+        VectorDataBlock vectorBlock = null;
         try {
-            ragDocument = ragUtil.convertToRagDocument(file, uploadedBy, tags, projectId);
+            vectorBlock = ragUtil.convertDocumentToVectorDataBlock(file, uploadedBy, tags, projectId);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
         try {
-            ingestionService.indexRagDocument(ragDocument);
+            ingestionService.indexRagDocument(vectorBlock);
         } catch (RuntimeException e) {
             throw e;
         }
+    }
+
+    public void embbedAndStoreChat() {
+
+        //call the function convertChatToVectorDataBlock()
+        //store the resulting vector data block using ingestionService.indexRagDocument()
     }
 
 
