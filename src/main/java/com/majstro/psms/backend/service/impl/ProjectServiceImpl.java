@@ -16,7 +16,6 @@ import com.majstro.psms.backend.service.storage.FileStorageService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -24,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -65,10 +65,10 @@ public class ProjectServiceImpl implements IProjectService {
                 projectUserRoleRepository.save(adminRole);
 
                 log.info("User {} created project {} and was added as ADMIN",
-                    creator.getEmail(), saved.getProjectName());
+                        creator.getEmail(), saved.getProjectName());
             } else {
                 log.info("APP_ADMIN user {} created project {} (not added to team - has global access)",
-                    creator.getEmail(), saved.getProjectName());
+                        creator.getEmail(), saved.getProjectName());
             }
         }
 
@@ -140,7 +140,7 @@ public class ProjectServiceImpl implements IProjectService {
         if (!projectRepository.existsById(id)) {
             throw new EntityNotFoundException("Project not found with ID: " + id);
         }
-        
+
         // Delete physical storage directory before deleting database records
         try {
             fileStorageService.deleteProjectDirectory(id);
@@ -149,7 +149,7 @@ public class ProjectServiceImpl implements IProjectService {
             log.error("Failed to delete storage directory for project {}: {}", id, e.getMessage());
             // Continue with database deletion even if file deletion fails
         }
-        
+
         // Delete project from database (cascade will handle artifacts and user roles)
         projectRepository.deleteById(id);
     }
@@ -159,15 +159,16 @@ public class ProjectServiceImpl implements IProjectService {
     public void removeUserFromProject(String projectId, String userId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found with ID: " + projectId));
-        
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
-        
+
         // Check if the user is actually assigned to the project
         if (!projectUserRoleRepository.existsByProjectAndUser(project, user)) {
             throw new IllegalArgumentException("User is not a member of this project");
         }
-        
+
         projectUserRoleRepository.deleteByProjectAndUser(project, user);
     }
+
 }

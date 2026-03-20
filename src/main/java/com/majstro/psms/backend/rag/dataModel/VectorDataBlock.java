@@ -1,5 +1,8 @@
 package com.majstro.psms.backend.rag.dataModel;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class VectorDataBlock {
 
     private String id;                 // unique id for each source item
@@ -21,7 +24,15 @@ public class VectorDataBlock {
         return content;
     }
 
-    public MetaData getMetadata() {
-        return metadata;
+    public Map<String, Object> getMetadata() {
+
+        Map<String, Object> metadataMap = new HashMap<>();
+        metadataMap.put("type", metadata.type);
+        metadataMap.put("subType", metadata.subType);
+        metadataMap.put("userId", metadata.userId);
+        metadataMap.put("projectId", metadata.projectId);
+        metadataMap.put("conversationId", metadata.conversationId);
+
+        return metadataMap;
     }
 }
