@@ -38,43 +38,35 @@ public class RagServices {
         VectorDataBlock vectorBlock = null;
         try {
             vectorBlock = ragUtil.convertDocumentToVectorDataBlock(file, uploadedBy, tags, projectId);
+            ingestionService.indexRagDocument(vectorBlock);
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        try {
-            ingestionService.indexRagDocument(vectorBlock);
-        } catch (RuntimeException e) {
-            throw e;
-        }
     }
 
     public void embbedAndStoreChat(
             String message,
             String role,
             String userId,
-            String conversationId
-    ) {
-
+            String conversationId) {
 
         VectorDataBlock vectorBlock = null;
-        String projectId = conversationRepository.findById(UUID.fromString(conversationId)).get().getProjectId();
-
-        createNewMessage(conversationId, message, role);
 
         try {
+            String projectId = conversationRepository.findById(UUID.fromString(conversationId)).get().getProjectId();
+
+            createNewMessage(conversationId, message, role);
+
             vectorBlock = ragUtil.convertChatToVectorDataBlock(message, role, userId, projectId, conversationId);
+
+            ingestionService.indexRagDocument(vectorBlock);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        try {
-            ingestionService.indexRagDocument(vectorBlock);
-        } catch (RuntimeException e) {
-            throw e;
-        }
 
     }
 
@@ -98,8 +90,8 @@ public class RagServices {
         messageRepository.save(msg);
     }
 
-    public String query(String userQuery, String projectId) {
-        return queryService.answerUserQuery(userQuery, projectId);
+    public String query(String userQuery, String projectId, String conversationId) {
+        return queryService.answerUserQuery(userQuery, projectId, conversationId);
 
     }
 

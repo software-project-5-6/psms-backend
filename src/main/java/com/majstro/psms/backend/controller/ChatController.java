@@ -20,14 +20,17 @@ public class ChatController {
     private final IProjectService projectService;
     private final RagServices ragServices;
 
-    @PostMapping("ask/{id}")
-    public ResponseEntity<AskResponse> askProject(@PathVariable String id, @RequestBody AskRequest request) {
-        String answer = ragServices.query(request.getQuestion(), id);
+    @PostMapping("/ask")
+    public ResponseEntity<AskResponse> askProject(
+            @RequestBody String projectId,
+            @RequestBody String conversationId,
+            @RequestBody AskRequest request) {
 
+        String answer = ragServices.query(request.getQuestion(), projectId, conversationId);
         return ResponseEntity.ok(new AskResponse(answer));
     }
 
-    @PostMapping("store")
+    @PostMapping("/store")
     public ResponseEntity<Void> storeChatHistory(
             @RequestBody String conversationId,
             @RequestBody String message,
@@ -38,7 +41,7 @@ public class ChatController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("conversation")
+    @PostMapping("/conversation")
     public ResponseEntity<String> createConversation(
             @RequestBody String projectId,
             @RequestBody String title,

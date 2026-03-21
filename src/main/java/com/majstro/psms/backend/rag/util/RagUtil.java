@@ -25,12 +25,10 @@ public class RagUtil {
             throw new IllegalArgumentException("File is empty and cannot be processed for embeddings");
         }
 
-
         TikaDocumentReader reader =
                 new TikaDocumentReader(new InputStreamResource(file.getInputStream()));
 
         List<Document> docs = reader.read();
-
 
         if (docs.isEmpty()) {
             throw new IllegalArgumentException("No content could be extracted from the file");
