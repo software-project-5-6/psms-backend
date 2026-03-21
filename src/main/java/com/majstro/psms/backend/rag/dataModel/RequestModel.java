@@ -8,12 +8,12 @@ import java.util.List;
 
 public class RequestModel {
 
-    private Project project;
-    private String contextFromDocuments;
-    private String contextFromChatHistory;
-    private List<String> topRecentChats;
-    private String userQuery;
-    private List<String> instructions = new ArrayList<>();
+    private final Project project;
+    private final String contextFromDocuments;
+    private final String contextFromChatHistory;
+    private final List<String> topRecentChats;
+    private final String userQuery;
+    private final List<String> instructions = new ArrayList<>();
 
 
     public RequestModel(

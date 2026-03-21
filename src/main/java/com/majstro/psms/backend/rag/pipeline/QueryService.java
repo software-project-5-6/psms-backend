@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -38,16 +39,14 @@ public class QueryService {
         SearchRequest requestToKnowledgeBase = SearchRequest.builder()
                 .query(userQuery)
                 .topK(5)
-                .filterExpression("type == knowledge")
-                .filterExpression("projectId == '" + projectId + "'")
+                .filterExpression("type == 'knowledge' AND projectId == '" + projectId + "'")
                 .build();
 
         SearchRequest requestToChatHistory = SearchRequest.builder()
                 .query(userQuery)
                 .topK(5)
-                .filterExpression("type == chat")
-                .filterExpression("projectId == '" + projectId + "'")
-                .filterExpression("conversationId == conversationId")
+                .filterExpression("type == 'chat' AND projectId == '" + projectId +
+                        "' AND conversationId == '" + conversationId + "'")
                 .build();
 
         //data taken from vector database related to existing documents
@@ -73,8 +72,11 @@ public class QueryService {
                 UUID.fromString(conversationId), pageable
         );
 
+        //because llm need the flow of old->new messages
+        Collections.reverse(latestChatHistory);
+
         List<String> messages = latestChatHistory.stream()
-                .map(m -> new String(m.getRole() + ": " + m.getContent()))
+                .map(m -> m.getRole() + ": " + m.getContent())
                 .toList();
 
 

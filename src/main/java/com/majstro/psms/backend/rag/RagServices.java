@@ -75,10 +75,10 @@ public class RagServices {
         Conversation conversation = new Conversation();
         conversation.setUserId(userId);
         conversation.setTitle(title);
+        conversation.setProjectId(projectId);
         var response = conversationRepository.save(conversation);
-        var newConversationId = conversation.getId().toString();
 
-        return newConversationId;
+        return response.getId().toString();
     }
 
 
