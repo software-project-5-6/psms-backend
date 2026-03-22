@@ -29,8 +29,7 @@ public class ProjectController {
     @PostMapping
     public ResponseEntity<ProjectDto> createProject(
             @RequestBody ProjectDto projectDto,
-            @AuthenticationPrincipal Jwt jwt)
-    {
+            @AuthenticationPrincipal Jwt jwt) {
 
         String creatorUserId = userService.getUserIdFromJwt(jwt);
         ProjectDto created = projectService.createProject(projectDto, creatorUserId);
@@ -42,14 +41,6 @@ public class ProjectController {
         ProjectWithUsersDto project = projectService.getProjectById(id);
         return ResponseEntity.ok(project);
     }
-
-    @PostMapping("ask/{id}")
-    public ResponseEntity<AskResponse> askProject(@PathVariable String id, @RequestBody AskRequest request) {
-        String answer = ragServices.query(request.getQuestion(),id);
-
-        return ResponseEntity.ok(new AskResponse(answer));
-    }
-
 
     @GetMapping
     public ResponseEntity<List<ProjectDto>> getAllProjects() {

@@ -1,5 +1,6 @@
 package com.majstro.psms.backend.rag.dataModel;
 
+import com.majstro.psms.backend.entity.Message;
 import com.majstro.psms.backend.entity.Project;
 
 import java.util.ArrayList;
@@ -7,15 +8,26 @@ import java.util.List;
 
 public class RequestModel {
 
-    private Project project;
-    private String context;
-    private String userQuery;
-    private List<String> instructions = new ArrayList<>();
+    private final Project project;
+    private final String contextFromDocuments;
+    private final String contextFromChatHistory;
+    private final List<String> topRecentChats;
+    private final String userQuery;
+    private final List<String> instructions = new ArrayList<>();
 
-    public RequestModel(String context, String userQuery, Project project) {
-        this.context = context;
+
+    public RequestModel(
+            String contextFromDocuments,
+            String contextFromChatHistory,
+            String userQuery,
+            Project project,
+            List<String> topRecentChats) {
+
+        this.contextFromDocuments = contextFromDocuments;
+        this.contextFromChatHistory = contextFromChatHistory;
         this.userQuery = userQuery;
         this.project = project;
+        this.topRecentChats = topRecentChats;
     }
 
     public Project getProject() {
@@ -34,11 +46,19 @@ public class RequestModel {
         for (String instruction : instructions) {
             prompt.append("- ").append(instruction).append("\n");
         }
-
         prompt.append("\n");
 
-        prompt.append("CONTEXT:\n");
-        prompt.append(context).append("\n\n");
+
+        prompt.append("DOCUMENT CONTEXT :\n");
+        prompt.append(contextFromDocuments).append("\n\n");
+
+        prompt.append("CRITICAL PAST CHAT CONTEXT :\n");
+        prompt.append(contextFromChatHistory).append("\n\n");
+
+        prompt.append("MOST RECENT CHATS:\n");
+        for (String message : topRecentChats) {
+            prompt.append("- ").append(message).append("\n");
+        }
 
         prompt.append("USER QUERY:\n");
         prompt.append(userQuery);

@@ -8,6 +8,7 @@ import com.majstro.psms.backend.mapper.ArtifactMapper;
 import com.majstro.psms.backend.rag.RagServices;
 import com.majstro.psms.backend.service.ArtifactService;
 import com.majstro.psms.backend.service.IProjectService;
+import com.majstro.psms.backend.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -33,6 +34,7 @@ public class ArtifactController {
     private final ArtifactService artifactService;
     private final IProjectService projectService;
     private final RagServices ragServices;
+    private final IUserService userService;
 
     /**
      * Get all artifacts for a project
@@ -60,8 +62,9 @@ public class ArtifactController {
 
         Project project = projectService.getProjectEntityById(projectId);
         Artifact artifact = artifactService.upload(file, project, type, uploadedBy, tags);
+        var user = userService.getCurrentUser();
 
-        ragServices.embbedAndStore(file,uploadedBy,tags,projectId);
+        ragServices.embbedAndStoreDocument(file, user.getId(), tags, projectId);
         return ResponseEntity.status(HttpStatus.CREATED).body(ArtifactMapper.toUploadResponse(artifact));
     }
 

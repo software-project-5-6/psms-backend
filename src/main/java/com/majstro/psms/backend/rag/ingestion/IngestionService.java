@@ -1,12 +1,13 @@
 package com.majstro.psms.backend.rag.ingestion;
 
 
-import com.majstro.psms.backend.rag.dataModel.RAGDocument;
+import com.majstro.psms.backend.rag.dataModel.VectorDataBlock;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
@@ -20,7 +21,7 @@ public class IngestionService {
     TokenTextSplitter splitter;
 
 
-    public void indexRagDocument(RAGDocument ragDoc) {
+    public void indexRagDocument(VectorDataBlock ragDoc) {
         try {
 
             if (ragDoc == null) {
@@ -33,16 +34,13 @@ public class IngestionService {
             Document doc = new Document(ragDoc.getContent(), ragDoc.getMetadata());
 
             List<Document> chunks = splitter.split(doc);
-            for (int i = 0; i < chunks.size(); i++) {
-                Document chunk = chunks.get(i);
-            }
-
             vectorStore.add(chunks);        // embeddings + storage handled automatically
 
         } catch (Exception e) {
             throw new RuntimeException("Failed to index document", e);
         }
     }
+
 
     public void deleteProjectDocs(String projectId) {
         try {

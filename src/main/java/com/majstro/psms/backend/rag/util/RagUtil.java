@@ -1,6 +1,7 @@
 package com.majstro.psms.backend.rag.util;
 
-import com.majstro.psms.backend.rag.dataModel.RAGDocument;
+import com.majstro.psms.backend.rag.dataModel.MetaData;
+import com.majstro.psms.backend.rag.dataModel.VectorDataBlock;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.tika.TikaDocumentReader;
 import org.springframework.core.io.InputStreamResource;
@@ -13,9 +14,9 @@ import java.util.*;
 @Component
 public class RagUtil {
 
-    public RAGDocument convertToRagDocument(
+    public VectorDataBlock convertDocumentToVectorDataBlock(
             MultipartFile file,
-            String uploadedBy,
+            String userId,
             String tags,
             String projectId) throws IOException {
 
@@ -24,12 +25,10 @@ public class RagUtil {
             throw new IllegalArgumentException("File is empty and cannot be processed for embeddings");
         }
 
-
         TikaDocumentReader reader =
                 new TikaDocumentReader(new InputStreamResource(file.getInputStream()));
 
         List<Document> docs = reader.read();
-
 
         if (docs.isEmpty()) {
             throw new IllegalArgumentException("No content could be extracted from the file");
@@ -45,19 +44,36 @@ public class RagUtil {
             throw new IllegalArgumentException("Extracted content is empty and cannot be embedded");
         }
 
-
-        Map<String, Object> metadata = new HashMap<>();
-        metadata.put("projectId", projectId);
-        metadata.put("fileName", file.getOriginalFilename());
-        metadata.put("uploadedBy", uploadedBy != null ? uploadedBy : "unknown");
-        metadata.put("tags", tags != null ? tags : "");
-        metadata.put("size", file.getSize());
-        metadata.put("type", file.getContentType());
+        MetaData metadata = new MetaData();
+        metadata.type = "knowledge";
+        metadata.subType = tags != null ? tags : "";
+        metadata.userId = userId;
+        metadata.projectId = projectId;
 
 
-        return new RAGDocument(
+        return new VectorDataBlock(
                 UUID.randomUUID().toString(),
                 content,
+                metadata);
+    }
+
+    public VectorDataBlock convertChatToVectorDataBlock(
+            String message,
+            String role,        // e.g. "user" or "assistant"
+            String userId,
+            String projectId,
+            String conversationId) {
+
+        MetaData metadata = new MetaData();
+        metadata.type = "chat";
+        metadata.subType = role;
+        metadata.userId = userId;
+        metadata.projectId = projectId;
+        metadata.conversationId = conversationId;
+
+        return new VectorDataBlock(
+                UUID.randomUUID().toString(),
+                message,
                 metadata);
     }
 }
