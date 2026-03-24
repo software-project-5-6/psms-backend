@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class OutputChatMessage {
+    public String id;
     public String role;
     public String content;
 }

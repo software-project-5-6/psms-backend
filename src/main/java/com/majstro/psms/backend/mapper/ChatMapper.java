@@ -28,7 +28,7 @@ public class ChatMapper {
     }
 
     public static OutputChatMessage toOutputChatMessage(Message message) {
-        return new OutputChatMessage(message.getRole(), message.getContent());
+        return new OutputChatMessage(message.getId().toString(), message.getRole(), message.getContent());
     }
 
     public static OutputConversation toOutputConversation(Conversation conversation) {

@@ -27,21 +27,14 @@ public class ChatController {
     public ResponseEntity<AskResponse> askProject(
             @RequestBody AskRequest request) {
 
+        String userId = userService.getCurrentUser().getId();
+        ragServices.embbedAndStoreChat(request.getQuestion(), "user", userId, request.getConversationId());
         String answer = ragServices.query(request.getQuestion(), request.getProjectId(), request.getConversationId());
+        ragServices.embbedAndStoreChat(answer, "assist", userId, request.getConversationId());
+
         return ResponseEntity.ok(new AskResponse(answer));
     }
 
-    @PostMapping("/store")
-    public ResponseEntity<Void> storeChatHistory(
-            @RequestBody MessageStoreRequest request
-
-    ) {
-        ragServices.embbedAndStoreChat(
-                request.getMessage(),
-                request.getRole(), request.getUserId(),
-                request.getConversationId());
-        return ResponseEntity.ok().build();
-    }
 
     @PostMapping("/conversation")
     public ResponseEntity<String> createConversation(@RequestBody NewConversationRequest request) {
