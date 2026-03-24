@@ -55,6 +55,13 @@ public class ChatController {
         return ResponseEntity.ok(response);
     }
 
+    @DeleteMapping("/conversation/{conversationId}")
+    public ResponseEntity deleteConversationMessages(@PathVariable String conversationId) {
+
+        var numofRecordsDeleted = ragServices.deleteAllConversationData(conversationId);
+        return ResponseEntity.ok(numofRecordsDeleted);
+    }
+
     @GetMapping("/conversations/{projectId}")
     public ResponseEntity<ProjectConversations> getProjectConversations(@PathVariable String projectId) {
         List<Conversation> conversations = ragServices.getProjectConversations(projectId);

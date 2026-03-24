@@ -103,6 +103,17 @@ public class RagServices {
 
     }
 
+    public long deleteAllConversationData(String conversationId) {
+
+        UUID convertedId = UUID.fromString(conversationId);
+        var numOfRecords = messageRepository.deleteByConversationId(convertedId);
+        conversationRepository.deleteById(convertedId);
+        ingestionService.deleteProjectConversations(conversationId);
+
+        return numOfRecords;
+
+    }
+
     public void deleteDocs(String projectId) {
         ingestionService.deleteProjectDocs(projectId);
     }

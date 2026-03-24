@@ -10,4 +10,5 @@ public interface ConversationRepository extends JpaRepository<Conversation, UUID
 
     List<Conversation> findByProjectIdOrderByCreatedAt(String projectId);
 
+    void deleteById(UUID id);
 }
