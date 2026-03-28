@@ -11,9 +11,8 @@ import com.majstro.psms.backend.repository.MessageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.stringtemplate.v4.ST;
 
-import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -90,8 +89,28 @@ public class RagServices {
         messageRepository.save(msg);
     }
 
+    public List<Message> getConversationMessages(String conversationId) {
+
+        return messageRepository.findByConversationIdOrderByCreatedAt(UUID.fromString(conversationId));
+    }
+
+    public List<Conversation> getProjectConversations(String projectId) {
+        return conversationRepository.findByProjectIdOrderByCreatedAt(projectId);
+    }
+
     public String query(String userQuery, String projectId, String conversationId) {
         return queryService.answerUserQuery(userQuery, projectId, conversationId);
+
+    }
+
+    public long deleteAllConversationData(String conversationId) {
+
+        UUID convertedId = UUID.fromString(conversationId);
+        var numOfRecords = messageRepository.deleteByConversationId(convertedId);
+        conversationRepository.deleteById(convertedId);
+        ingestionService.deleteProjectConversations(conversationId);
+
+        return numOfRecords;
 
     }
 

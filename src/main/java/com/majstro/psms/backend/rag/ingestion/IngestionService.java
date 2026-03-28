@@ -57,5 +57,16 @@ public class IngestionService {
         }
     }
 
+    public void deleteProjectConversations(String conversationId) {
+        try {
+
+            String filterExpression = "conversationId == '" + conversationId.replace("'", "''") + "'";
+            vectorStore.delete(filterExpression);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to delete conversations " + e.getMessage(), e);
+        }
+    }
+
 
 }

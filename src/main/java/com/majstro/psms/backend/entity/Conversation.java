@@ -1,9 +1,6 @@
 package com.majstro.psms.backend.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -21,15 +18,16 @@ public class Conversation {
 
     @Id
     @Column
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "user_id", length = 4, nullable = false)
+    @Column(name = "user_id", nullable = false)
     private String userId;
 
     @Column
     private String projectId;
 
-    @Column(name = "conversation_title", length = 4)
+    @Column(name = "conversation_title")
     private String title;
 
     @CreationTimestamp

@@ -7,7 +7,9 @@ import lombok.*;
 @Setter
 public class AskRequest {
 
-      String question;
+    String projectId;
+    String conversationId;
+    String question;
 //    Integer topK,
 //    Double temperature
 
