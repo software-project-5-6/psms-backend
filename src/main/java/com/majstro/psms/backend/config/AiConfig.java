@@ -19,7 +19,7 @@ public class AiConfig {
         return ChatClient.create(chatModel);
     }
 
-    // Mark OpenAI/Groq chat model as primary
+    // Mark OpenAI-compatible chat model (OpenRouter) as primary
     @Bean
     @Primary
     public ChatModel chatModel(@Qualifier("openAiChatModel") ChatModel openAiChatModel) {

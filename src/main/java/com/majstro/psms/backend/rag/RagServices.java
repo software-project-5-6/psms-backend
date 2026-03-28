@@ -118,5 +118,16 @@ public class RagServices {
         ingestionService.deleteProjectDocs(projectId);
     }
 
+    public String generateTitle(String firstMessage) {
+        return queryService.generateTitle(firstMessage);
+    }
+
+    public void renameConversation(String conversationId, String title) {
+        Conversation conversation = conversationRepository.findById(UUID.fromString(conversationId))
+                .orElseThrow(() -> new RuntimeException("Conversation not found: " + conversationId));
+        conversation.setTitle(title);
+        conversationRepository.save(conversation);
+    }
+
 
 }

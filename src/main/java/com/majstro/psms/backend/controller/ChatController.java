@@ -47,6 +47,20 @@ public class ChatController {
         return ResponseEntity.ok(convsersationId);
     }
 
+    @PostMapping("/generate-title")
+    public ResponseEntity<String> generateTitle(@RequestBody GenerateTitleRequest request) {
+        String title = ragServices.generateTitle(request.getFirstMessage());
+        return ResponseEntity.ok(title);
+    }
+
+    @PatchMapping("/conversation/{conversationId}/title")
+    public ResponseEntity<Void> renameConversation(
+            @PathVariable String conversationId,
+            @RequestBody RenameTitleRequest request) {
+        ragServices.renameConversation(conversationId, request.getTitle());
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/conversation/{conversationId}")
     public ResponseEntity<ConversationMessages> getConversationMessages(@PathVariable String conversationId) {
         List<Message> messages = ragServices.getConversationMessages(conversationId);

@@ -91,4 +91,18 @@ public class QueryService {
                 .call()
                 .content();
     }
+
+    public String generateTitle(String firstMessage) {
+        String safeMessage = firstMessage.replace("\"", "'");
+        String prompt = String.format(
+                "Generate a concise, descriptive title (3 to 6 words) for a chat conversation based on this opening message: \"%s\"\n\n" +
+                "Rules:\n" +
+                "- Return ONLY the title text, nothing else\n" +
+                "- No quotes, no trailing punctuation\n" +
+                "- Be specific and meaningful\n" +
+                "- Do not start with generic words like Chat, Discussion, Help, Query, or Request",
+                safeMessage
+        );
+        return chatClient.prompt(prompt).call().content().trim();
+    }
 }
