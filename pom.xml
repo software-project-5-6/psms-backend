@@ -164,6 +164,12 @@
             <!-- Version managed by Spring Boot 3.5.6 parent (6.1.x) -->
         </dependency>
 
+        <!-- Firebase Admin SDK for Push Notifications -->
+        <dependency>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>9.2.0</version>
+        </dependency>
 
     </dependencies>
 

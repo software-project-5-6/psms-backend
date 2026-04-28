@@ -37,3 +37,11 @@ build/
 
 ### File Storage ###
 storage/
+
+
+### firebase service account key ###
+src/main/resources/firebase-service-account.json
+
+
+*.md
+*.pdf
