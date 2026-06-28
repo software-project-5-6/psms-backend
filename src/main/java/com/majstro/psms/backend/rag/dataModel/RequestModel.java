@@ -39,9 +39,20 @@ public class RequestModel {
     }
 
     public String buildPrompt() {
+        // Static system instruction for project space management assistant
+        final String staticInstruction = "You are a project space management assistant. Answer only questions related to managing the project's workspace. If a user asks about anything outside project space management, respond with a polite rejection indicating the query is out of scope.";
         StringBuilder prompt = new StringBuilder();
 
+        prompt.append(
+                "PROJECT SPACE MANAGEMENT ASSISTANT MAIN PROMPT\n"
+                        + "you are a helpful assistance inside a project space management system.your" +
+                        "main responsibility is providing answer to the user question , using " +
+                        "the given details about the project and the context from documents and chat history. " +
+                        "if the user question is not related to the project space management, you should politely" +
+                        " reject the question and inform the user that the question is out of scope.\n\n"
 
+
+        );
         prompt.append("SYSTEM INSTRUCTIONS:\n");
         for (String instruction : instructions) {
             prompt.append("- ").append(instruction).append("\n");

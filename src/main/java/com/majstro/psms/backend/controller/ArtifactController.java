@@ -1,6 +1,9 @@
 package com.majstro.psms.backend.controller;
 
 import com.majstro.psms.backend.dto.ArtifactSummaryDto;
+import com.majstro.psms.backend.dto.EmailDto;
+import com.majstro.psms.backend.dto.GmailQueryDto;
+import com.majstro.psms.backend.dto.ZoomTranscriptDto;
 import com.majstro.psms.backend.entity.Artifact;
 import com.majstro.psms.backend.entity.ArtifactType;
 import com.majstro.psms.backend.entity.Project;
@@ -9,6 +12,7 @@ import com.majstro.psms.backend.rag.RagServices;
 import com.majstro.psms.backend.service.ArtifactService;
 import com.majstro.psms.backend.service.IProjectService;
 import com.majstro.psms.backend.service.IUserService;
+import com.majstro.psms.backend.service.ThirdPartyServices;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +21,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +41,7 @@ public class ArtifactController {
     private final IProjectService projectService;
     private final RagServices ragServices;
     private final IUserService userService;
+    private final ThirdPartyServices thirdPartyServices;
 
     /**
      * Get all artifacts for a project
@@ -102,4 +109,25 @@ public class ArtifactController {
         ragServices.deleteDocs(projectId);
         return ResponseEntity.noContent().build();
     }
+
+
+    @PostMapping("/gmails")
+    public ResponseEntity<List<EmailDto>> getGmails(@RequestBody GmailQueryDto queryDto) {
+        var user = userService.getCurrentUser();
+        String accessToken = user.getGmailAccessToken();
+        String query = queryDto.buildQueryString();
+        List<String> queries = List.of(query);
+        List<EmailDto> emails = thirdPartyServices.getGmails(accessToken, queries);
+        return ResponseEntity.ok(emails);
+    }
+
+
+    @GetMapping("/zoom-transcripts/{meetingId}")
+    public ResponseEntity<ZoomTranscriptDto> getZoomTranscripts(@PathVariable String meetingId) {
+        var user = userService.getCurrentUser();
+        String accessToken = user.getZoomAccessToken();
+        var transcriptDto = thirdPartyServices.getZoomTranscripts(accessToken, meetingId);
+        return ResponseEntity.ok(transcriptDto);
+    }
+
 }

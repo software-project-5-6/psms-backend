@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class BudgetGuardRail implements InputGuardRail {
     @Override
-    public void validate(RequestModel input) throws GuardrailViolationException {
+    public void validate(RequestModel input) {
 
         Project project = input.getProject();
         String systemPrompt = """

@@ -164,7 +164,13 @@
             <!-- Version managed by Spring Boot 3.5.6 parent (6.1.x) -->
         </dependency>
 
-
+        <!-- Servlet API for HttpServletResponse, HttpServletRequest, etc. -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
 

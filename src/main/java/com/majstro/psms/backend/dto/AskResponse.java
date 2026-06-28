@@ -10,4 +10,5 @@ import lombok.*;
 @Builder
 public class AskResponse {
     String answer;
+    String finalPrompt;
 }

@@ -2,6 +2,7 @@ package com.majstro.psms.backend.rag;
 
 import com.majstro.psms.backend.entity.Conversation;
 import com.majstro.psms.backend.entity.Message;
+import com.majstro.psms.backend.rag.dataModel.AnswerResult;
 import com.majstro.psms.backend.rag.dataModel.VectorDataBlock;
 import com.majstro.psms.backend.rag.ingestion.IngestionService;
 import com.majstro.psms.backend.rag.pipeline.QueryService;
@@ -98,7 +99,7 @@ public class RagServices {
         return conversationRepository.findByProjectIdOrderByCreatedAt(projectId);
     }
 
-    public String query(String userQuery, String projectId, String conversationId) {
+    public AnswerResult query(String userQuery, String projectId, String conversationId) {
         return queryService.answerUserQuery(userQuery, projectId, conversationId);
 
     }

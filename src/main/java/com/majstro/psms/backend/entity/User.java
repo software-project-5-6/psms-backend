@@ -35,6 +35,18 @@ public class User {
     @Column(name = "global_role", length = 50)
     private String globalRole = "APP_USER";
 
+    @Column(name = "gmail_access_token", length = 2000)
+    private String gmailAccessToken;
+
+    @Column(name = "gmail_refresh_token", length = 2000)
+    private String gmailRefreshToken;
+
+    @Column(name = "zoom_access_token", length = 2000)
+    private String zoomAccessToken;
+
+    @Column(name = "zoom_refresh_token", length = 2000)
+    private String zoomRefreshToken;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -66,4 +78,5 @@ public class User {
             this.id = IdGenerator.generateIdWithPrefix("U"); // U for User (e.g., UA12, UX45)
         }
     }
+
 }

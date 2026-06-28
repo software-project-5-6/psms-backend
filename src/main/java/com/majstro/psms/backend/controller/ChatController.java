@@ -29,10 +29,10 @@ public class ChatController {
 
         String userId = userService.getCurrentUser().getId();
         ragServices.embbedAndStoreChat(request.getQuestion(), "user", userId, request.getConversationId());
-        String answer = ragServices.query(request.getQuestion(), request.getProjectId(), request.getConversationId());
-        ragServices.embbedAndStoreChat(answer, "assist", userId, request.getConversationId());
+        var answer = ragServices.query(request.getQuestion(), request.getProjectId(), request.getConversationId());
+        ragServices.embbedAndStoreChat(answer.getAnswer(), "assist", userId, request.getConversationId());
 
-        return ResponseEntity.ok(new AskResponse(answer));
+        return ResponseEntity.ok(new AskResponse(answer.getAnswer(), answer.getPrompt()));
     }
 
 

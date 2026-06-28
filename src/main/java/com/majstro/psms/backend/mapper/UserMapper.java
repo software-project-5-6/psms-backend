@@ -18,6 +18,10 @@ public class UserMapper {
                 .globalRole(user.getGlobalRole())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
+                .gmailAccessToken(user.getGmailAccessToken())
+                .gmailRefreshToken(user.getGmailRefreshToken())
+                .zoomAccessToken(user.getZoomAccessToken())
+                .zoomRefreshToken(user.getZoomRefreshToken())
                 .build();
     }
 
