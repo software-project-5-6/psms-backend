@@ -4,7 +4,7 @@ import com.majstro.psms.backend.rag.dataModel.MetaData;
 import com.majstro.psms.backend.rag.dataModel.VectorDataBlock;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.tika.TikaDocumentReader;
-import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,8 +25,12 @@ public class RagUtil {
             throw new IllegalArgumentException("File is empty and cannot be processed for embeddings");
         }
 
-        TikaDocumentReader reader =
-                new TikaDocumentReader(new InputStreamResource(file.getInputStream()));
+        // Use ByteArrayResource so Tika can read the file even if the InputStream
+        // was already consumed by the storage service earlier in the same request.
+        final String filename = file.getOriginalFilename();
+        TikaDocumentReader reader = new TikaDocumentReader(new ByteArrayResource(file.getBytes()) {
+            @Override public String getFilename() { return filename; }
+        });
 
         List<Document> docs = reader.read();
 

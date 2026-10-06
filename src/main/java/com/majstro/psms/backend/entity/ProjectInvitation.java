@@ -41,7 +41,7 @@ public class ProjectInvitation {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "invited_by", length = 4)
+    @Column(name = "invited_by", length = 36)
     private String invitedBy;
 
     // Helper methods

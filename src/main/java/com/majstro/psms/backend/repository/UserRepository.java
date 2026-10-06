@@ -9,12 +9,9 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
 
-    // Find user by their unique Cognito "sub" ID
-    Optional<User> findByCognitoSub(String cognitoSub);
+    Optional<User> findByAuthSub(String authSub);
 
-    // Find user by email
     Optional<User> findByEmail(String email);
 
-    // Check if user exists by Cognito sub
-    boolean existsByCognitoSub(String cognitoSub);
+    boolean existsByAuthSub(String authSub);
 }

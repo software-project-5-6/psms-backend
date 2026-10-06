@@ -95,14 +95,13 @@ public class ProjectServiceImpl implements IProjectService {
         Jwt jwt = (Jwt) authentication.getPrincipal();
 
         String userId = jwt.getClaimAsString("sub");
-        List<String> groups = jwt.getClaimAsStringList("cognito:groups");
 
-        User user = userRepository.findByCognitoSub(userId)
+        User user = userRepository.findByAuthSub(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with sub: " + userId));
 
         List<Project> projects;
 
-        if (groups != null && groups.contains("APP_ADMIN")) {
+        if ("APP_ADMIN".equals(user.getGlobalRole())) {
             projects = projectRepository.findAll();
         } else {
             projects = projectUserRoleRepository.findByUser(user)

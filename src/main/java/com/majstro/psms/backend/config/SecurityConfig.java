@@ -1,11 +1,13 @@
 package com.majstro.psms.backend.config;
 
+import com.majstro.psms.backend.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
@@ -13,10 +15,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
@@ -37,10 +37,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**"
                         ).hasAnyAuthority("APP_ADMIN", "APP_USER")
-                        .requestMatchers("/api/auth/v1/sync").authenticated()
                         .requestMatchers("/api/admin/**").hasAuthority("APP_ADMIN")
                         .requestMatchers("/api/user/**").hasAnyAuthority("APP_ADMIN", "APP_USER")
-                        // Allow unauthenticated access to Google and Zoom OAuth endpoints (project and global)
                         .requestMatchers(
                                 "/oauth/google",
                                 "/oauth/google/callback",
@@ -60,28 +58,24 @@ public class SecurityConfig {
         return http.build();
     }
 
+    // Roles are not in the Supabase JWT — they are stored in public.users.
+    // On every request the converter does a single DB lookup by auth_sub to load the role.
     @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+    public JwtAuthenticationConverter jwtAuthenticationConverter(UserRepository userRepository) {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-
         converter.setJwtGrantedAuthoritiesConverter(jwt -> {
-            Collection<String> groups = jwt.getClaimAsStringList("cognito:groups");
-            if (groups == null) return Collections.emptyList();
-
-            return groups.stream()
-                    .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());
+            String sub = jwt.getSubject();
+            return userRepository.findByAuthSub(sub)
+                    .map(user -> List.<GrantedAuthority>of(new SimpleGrantedAuthority(user.getGlobalRole())))
+                    .orElse(Collections.emptyList());
         });
-
         return converter;
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(
-                "http://localhost:5173"
-        ));
+        config.setAllowedOrigins(List.of("http://localhost:5173"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type", "Accept"));
         config.setAllowCredentials(true);

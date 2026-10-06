@@ -8,7 +8,6 @@ import com.majstro.psms.backend.repository.ProjectRepository;
 import com.majstro.psms.backend.service.storage.FileStorageService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -98,7 +97,7 @@ public class ArtifactService {
         }
     }
 
-    public Resource loadArtifactFile(Artifact artifact) {
-        return storageService.load(artifact.getStoragePath());
+    public String getDownloadUrl(Artifact artifact) {
+        return storageService.getSignedUrl(artifact.getStoragePath());
     }
 }

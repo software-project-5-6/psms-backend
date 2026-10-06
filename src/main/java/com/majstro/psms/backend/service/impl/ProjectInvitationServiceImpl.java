@@ -79,11 +79,21 @@ public class ProjectInvitationServiceImpl implements IProjectInvitationService {
             }
         }
 
-        // Check for existing pending invitation
+        // Check for existing pending invitation — resend rather than error
         List<ProjectInvitation> existingInvites = invitationRepository.findByProjectAndEmail(project, emailLower);
         for (ProjectInvitation invite : existingInvites) {
             if (invite.isPending()) {
-                throw new ResourceAlreadyExistsException("A pending invitation already exists for " + emailLower);
+                invite.setRole(roleUpper);
+                invite.setExpiresAt(LocalDateTime.now().plusDays(7));
+                invite.setInvitedBy(inviterId);
+                invitationRepository.save(invite);
+                try {
+                    sendInvitationEmail(invite, project);
+                } catch (Exception e) {
+                    log.error("Failed to resend invitation email: {}", e.getMessage());
+                }
+                log.info("Resent existing invitation to {} for project {}", emailLower, project.getProjectName());
+                return;
             }
         }
 
@@ -106,7 +116,6 @@ public class ProjectInvitationServiceImpl implements IProjectInvitationService {
             sendInvitationEmail(invitation, project);
         } catch (Exception e) {
             log.error("Failed to send invitation email: {}", e.getMessage());
-            
         }
 
         log.info("Invitation sent to {} for project {}", emailLower, project.getProjectName());

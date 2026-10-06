@@ -48,7 +48,7 @@ public class UserServiceImpl implements IUserService {
 
         String sub = jwt.getClaimAsString("sub");
 
-        User user = userRepository.findByCognitoSub(sub)
+        User user = userRepository.findByAuthSub(sub)
                 .orElseThrow(() -> new EntityNotFoundException("User not found in database for sub: " + sub));
 
         return userMapper.toDto(user);
@@ -67,9 +67,9 @@ public class UserServiceImpl implements IUserService {
             return null;
         }
 
-        String cognitoSub = jwt.getClaimAsString("sub");
-        if (cognitoSub != null) {
-            User user = userRepository.findByCognitoSub(cognitoSub)
+        String sub = jwt.getClaimAsString("sub");
+        if (sub != null) {
+            User user = userRepository.findByAuthSub(sub)
                     .orElseThrow(() -> new EntityNotFoundException("User not found"));
             return user.getId();
         }

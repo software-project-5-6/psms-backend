@@ -82,7 +82,7 @@ public class ThirdPartyServices {
     @Transactional
     public boolean exchangeGoogleCodeForTokens(String code, String userId) {
         if (code == null || code.isEmpty() || userId == null) return false;
-        User user = userRepository.findByCognitoSub(userId).orElse(null);
+        User user = userRepository.findByAuthSub(userId).orElse(null);
         if (user == null) return false;
         try {
             var tokenResponse = googleOAuthClient.exchangeCodeForTokens(
@@ -121,7 +121,7 @@ public class ThirdPartyServices {
     @Transactional
     public boolean exchangeZoomCodeForTokens(String code, String userId) {
         if (code == null || code.isEmpty() || userId == null) return false;
-        User user = userRepository.findByCognitoSub(userId).orElse(null);
+        User user = userRepository.findByAuthSub(userId).orElse(null);
         if (user == null) return false;
         try {
             var tokenResponse = zoomOAuthClient.exchangeCodeForTokens(

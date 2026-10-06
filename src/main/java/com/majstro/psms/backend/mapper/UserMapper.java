@@ -12,7 +12,7 @@ public class UserMapper {
 
         return UserDto.builder()
                 .id(user.getId())
-                .cognitoSub(user.getCognitoSub())
+                .authSub(user.getAuthSub())
                 .email(user.getEmail())
                 .fullName(user.getFullName())
                 .globalRole(user.getGlobalRole())
@@ -30,7 +30,7 @@ public class UserMapper {
 
         return User.builder()
                 .id(dto.getId())
-                .cognitoSub(dto.getCognitoSub())
+                .authSub(dto.getAuthSub())
                 .email(dto.getEmail())
                 .fullName(dto.getFullName())
                 .globalRole(dto.getGlobalRole())

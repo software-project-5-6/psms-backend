@@ -13,7 +13,7 @@ import java.time.Instant;
 public class UserDto {
 
     private String id;
-    private String cognitoSub;
+    private String authSub;
     private String email;
     private String fullName;
     private String globalRole;
