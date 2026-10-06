@@ -37,4 +37,4 @@ build/
 docker.env
 
 ### File Storage ###
-storage/
+/storage/
