@@ -7,6 +7,7 @@ import com.majstro.psms.backend.service.IEmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -18,6 +19,9 @@ public class EmailServiceImpl implements IEmailService {
 
     private final JavaMailSender mailSender;
 
+    @Value("${spring.mail.username}")
+    private String fromAddress;
+
     @Override
     public void sendEmail(String to, String subject, String body) {
         try {
@@ -25,7 +29,7 @@ public class EmailServiceImpl implements IEmailService {
             message.setTo(to);
             message.setSubject(subject);
             message.setText(body);
-            message.setFrom("niroshanb14@gmail.com");
+            message.setFrom(fromAddress);
             mailSender.send(message);
 
             System.out.println("Invitation email sent to: " + to);
@@ -44,8 +48,8 @@ public class EmailServiceImpl implements IEmailService {
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(htmlBody, true); // true = HTML content
-            helper.setFrom("niroshanb14@gmail.com");
-            
+            helper.setFrom(fromAddress);
+
             mailSender.send(message);
             System.out.println("HTML email sent to: " + to);
         } catch (MessagingException e) {
