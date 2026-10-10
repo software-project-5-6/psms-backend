@@ -100,10 +100,9 @@ public class ArtifactController {
     @PostMapping("/gmails")
     public ResponseEntity<List<EmailDto>> getGmails(@RequestBody GmailQueryDto queryDto) {
         var user = userService.getCurrentUser();
-        String accessToken = user.getGmailAccessToken();
         String query = queryDto.buildQueryString();
         List<String> queries = List.of(query);
-        List<EmailDto> emails = thirdPartyServices.getGmails(accessToken, queries);
+        List<EmailDto> emails = thirdPartyServices.getGmails(user.getId(), queries);
         return ResponseEntity.ok(emails);
     }
 

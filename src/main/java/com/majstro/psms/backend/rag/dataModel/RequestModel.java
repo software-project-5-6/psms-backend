@@ -39,19 +39,19 @@ public class RequestModel {
     }
 
     public String buildPrompt() {
-        // Static system instruction for project space management assistant
-        final String staticInstruction = "You are a project space management assistant. Answer only questions related to managing the project's workspace. If a user asks about anything outside project space management, respond with a polite rejection indicating the query is out of scope.";
         StringBuilder prompt = new StringBuilder();
 
         prompt.append(
-                "PROJECT SPACE MANAGEMENT ASSISTANT MAIN PROMPT\n"
-                        + "you are a helpful assistance inside a project space management system.your" +
-                        "main responsibility is providing answer to the user question , using " +
-                        "the given details about the project and the context from documents and chat history. " +
-                        "if the user question is not related to the project space management, you should politely" +
-                        " reject the question and inform the user that the question is out of scope.\n\n"
-
-
+                "PROJECT SPACE MANAGEMENT ASSISTANT\n"
+                        + "You are a friendly, helpful assistant inside a project space management system. "
+                        + "Your job is to help the user with this project — its tasks, artifacts, team, status, "
+                        + "and documents — using the project details and the context from documents and chat "
+                        + "history provided below.\n"
+                        + "Feel free to respond naturally to greetings, thanks, and clarifying small talk.\n"
+                        + "If the user asks about something clearly unrelated to this project or project "
+                        + "management in general, let them know warmly that it's outside what you can help "
+                        + "with here, and steer the conversation back to what you can do for their project. "
+                        + "Keep the tone friendly and never scold or lecture the user.\n\n"
         );
         prompt.append("SYSTEM INSTRUCTIONS:\n");
         for (String instruction : instructions) {

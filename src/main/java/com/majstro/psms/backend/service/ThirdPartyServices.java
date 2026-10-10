@@ -10,15 +10,21 @@ import com.majstro.psms.backend.util.GoogleOAuthClient;
 import com.majstro.psms.backend.util.GmailApiClient;
 import com.majstro.psms.backend.util.ZoomCloudApiClient;
 import com.majstro.psms.backend.util.ZoomOAuthClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.List;
 
 @Service
 public class ThirdPartyServices {
+
+    private static final Logger log = LoggerFactory.getLogger(ThirdPartyServices.class);
+
     private final UserRepository userRepository;
     private final GoogleOAuthClient googleOAuthClient;
     private final GmailApiClient gmailApiClient;
@@ -72,6 +78,7 @@ public class ThirdPartyServices {
                 "&redirect_uri=" + googleRedirectUri +
                 "&response_type=code&scope=" + googleScope +
                 "&access_type=offline" +
+                "&prompt=consent" +
                 "&state=" + java.net.URLEncoder.encode(state, java.nio.charset.StandardCharsets.UTF_8);
         return url;
     }
@@ -81,9 +88,16 @@ public class ThirdPartyServices {
      */
     @Transactional
     public boolean exchangeGoogleCodeForTokens(String code, String userId) {
-        if (code == null || code.isEmpty() || userId == null) return false;
+        if (code == null || code.isEmpty() || userId == null) {
+            log.warn("Google OAuth callback missing code or userId (code present: {}, userId: {})",
+                    code != null && !code.isEmpty(), userId);
+            return false;
+        }
         User user = userRepository.findByAuthSub(userId).orElse(null);
-        if (user == null) return false;
+        if (user == null) {
+            log.warn("Google OAuth callback: no user found with authSub {}", userId);
+            return false;
+        }
         try {
             var tokenResponse = googleOAuthClient.exchangeCodeForTokens(
                     code, googleClientId, googleClientSecret, googleRedirectUri
@@ -95,16 +109,48 @@ public class ThirdPartyServices {
             userRepository.save(user);
             return true;
         } catch (Exception e) {
+            log.error("Failed to exchange Google authorization code for tokens: {}", e.getMessage(), e);
             return false;
         }
     }
 
     /**
-     * Fetches user's emails from Gmail API using access token and a list of queries, maps to EmailDto list.
+     * Fetches user's emails from Gmail API using a list of queries, maps to EmailDto list.
+     * The stored Gmail access token expires after about an hour, so if the first attempt is
+     * rejected as unauthenticated, this refreshes it using the stored refresh token and retries once.
      */
-    public List<EmailDto> getGmails(String accessToken, List<String> queries) {
-        var gmailMessages = gmailApiClient.fetchEmails(accessToken, queries);
+    @Transactional
+    public List<EmailDto> getGmails(String userId, List<String> queries) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+
+        List<java.util.Map<String, Object>> gmailMessages;
+        try {
+            gmailMessages = gmailApiClient.fetchEmails(user.getGmailAccessToken(), queries);
+        } catch (RuntimeException e) {
+            if (!isUnauthenticated(e) || user.getGmailRefreshToken() == null) {
+                throw e;
+            }
+            String refreshedAccessToken = refreshGoogleAccessToken(user);
+            gmailMessages = gmailApiClient.fetchEmails(refreshedAccessToken, queries);
+        }
+
         return gmailMessages.stream().map(msg -> emailMapper.mapGmailMessageToEmailDto(msg)).toList();
+    }
+
+    private boolean isUnauthenticated(RuntimeException e) {
+        return e.getCause() instanceof WebClientResponseException wcre
+                && wcre.getStatusCode().value() == 401;
+    }
+
+    private String refreshGoogleAccessToken(User user) {
+        var tokenResponse = googleOAuthClient.refreshAccessToken(
+                user.getGmailRefreshToken(), googleClientId, googleClientSecret
+        );
+        String newAccessToken = (String) tokenResponse.get("access_token");
+        user.setGmailAccessToken(newAccessToken);
+        userRepository.save(user);
+        return newAccessToken;
     }
 
     //https://zoom.us//oauth/authorize?response_type=code&client_id=kGGY73FOT2aNO2qSuA7AgA&redirect_uri=http://localhost:8080/auth/zoom/callback

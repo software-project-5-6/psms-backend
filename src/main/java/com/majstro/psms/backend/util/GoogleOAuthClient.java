@@ -33,5 +33,24 @@ public class GoogleOAuthClient {
             throw new RuntimeException("Failed to exchange code for tokens: " + e.getResponseBodyAsString(), e);
         }
     }
+
+    /**
+     * Exchanges a stored refresh token for a new access token once the previous one has expired.
+     */
+    public Map<String, Object> refreshAccessToken(String refreshToken, String clientId, String clientSecret) {
+        try {
+            return this.webClient.post()
+                    .uri("/token")
+                    .body(BodyInserters.fromFormData("refresh_token", refreshToken)
+                            .with("client_id", clientId)
+                            .with("client_secret", clientSecret)
+                            .with("grant_type", "refresh_token"))
+                    .retrieve()
+                    .bodyToMono(Map.class)
+                    .block();
+        } catch (WebClientResponseException e) {
+            throw new RuntimeException("Failed to refresh Google access token: " + e.getResponseBodyAsString(), e);
+        }
+    }
 }
 
