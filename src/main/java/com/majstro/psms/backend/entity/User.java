@@ -35,6 +35,7 @@ public class User {
     private String fullName;
 
     @Column(name = "global_role", length = 50)
+    @Builder.Default
     private String globalRole = "APP_USER";
 
     @Column(name = "gmail_access_token", length = 2000)

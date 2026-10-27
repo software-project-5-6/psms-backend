@@ -5,10 +5,11 @@ import com.majstro.psms.backend.dto.ProjectDto;
 import com.majstro.psms.backend.dto.ProjectWithUsersDto;
 import com.majstro.psms.backend.service.IProjectService;
 import com.majstro.psms.backend.service.IUserService;
+import com.majstro.psms.backend.rag.RagServices; // Added missing import
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean; // Updated import
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -33,19 +34,22 @@ class ProjectControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @MockitoBean
     private IProjectService projectService;
 
-    @MockBean
+    @MockitoBean
     private IUserService userService;
+
+    // ADDED: This fixes the Application Context Failure!
+    @MockitoBean
+    private RagServices ragServices;
 
     @Test
     void shouldCreateProject_WhenValidRequest() throws Exception {
         // Arrange
-        // FIX: Using Builder pattern as defined in your DTO
         ProjectDto requestDto = ProjectDto.builder()
                 .id("1")
-                .projectName("New Project") // Correct field name
+                .projectName("New Project")
                 .description("Desc")
                 .build();
 
@@ -61,15 +65,12 @@ class ProjectControllerTest {
                         .with(jwt())
                         .with(csrf()))
                 .andExpect(status().isOk())
-                // FIX: Verify "projectName" instead of "name"
                 .andExpect(jsonPath("$.projectName").value("New Project"));
     }
 
     @Test
     void shouldGetProjectById() throws Exception {
         // Arrange
-        // Assuming ProjectWithUsersDto also has a NoArgsConstructor or Builder.
-        // If not, you might need to adjust this similarly to ProjectDto.
         ProjectWithUsersDto responseDto = new ProjectWithUsersDto();
         responseDto.setId("1");
         responseDto.setProjectName("Project A");
