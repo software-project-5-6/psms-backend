@@ -2,6 +2,7 @@ package com.majstro.psms.backend.rag;
 
 import com.majstro.psms.backend.entity.Conversation;
 import com.majstro.psms.backend.entity.Message;
+import com.majstro.psms.backend.rag.dataModel.AnswerResult;
 import com.majstro.psms.backend.rag.dataModel.VectorDataBlock;
 import com.majstro.psms.backend.rag.ingestion.IngestionService;
 import com.majstro.psms.backend.rag.pipeline.QueryService;
@@ -9,6 +10,7 @@ import com.majstro.psms.backend.rag.util.RagUtil;
 import com.majstro.psms.backend.repository.ConversationRepository;
 import com.majstro.psms.backend.repository.MessageRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,6 +20,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RagServices {
 
     private final IngestionService ingestionService;
@@ -34,13 +37,12 @@ public class RagServices {
             String projectId) {
 
 
-        VectorDataBlock vectorBlock = null;
         try {
-            vectorBlock = ragUtil.convertDocumentToVectorDataBlock(file, uploadedBy, tags, projectId);
+            VectorDataBlock vectorBlock = ragUtil.convertDocumentToVectorDataBlock(file, uploadedBy, tags, projectId);
             ingestionService.indexRagDocument(vectorBlock);
-
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.error("Embedding failed for project {}: {} — {}", projectId, e.getClass().getSimpleName(), e.getMessage(), e);
+            throw new RuntimeException("Embedding failed: " + e.getMessage(), e);
         }
 
     }
@@ -98,7 +100,7 @@ public class RagServices {
         return conversationRepository.findByProjectIdOrderByCreatedAt(projectId);
     }
 
-    public String query(String userQuery, String projectId, String conversationId) {
+    public AnswerResult query(String userQuery, String projectId, String conversationId) {
         return queryService.answerUserQuery(userQuery, projectId, conversationId);
 
     }

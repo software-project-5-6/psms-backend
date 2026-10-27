@@ -1,9 +1,9 @@
 package com.majstro.psms.backend.entity;
 
-import com.majstro.psms.backend.util.IdGenerator;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
@@ -20,11 +20,13 @@ import java.util.Set;
 public class User {
 
     @Id
-    @Column(length = 4, nullable = false)
+    @GeneratedValue
+    @UuidGenerator
+    @Column(length = 36, nullable = false)
     private String id;
 
-    @Column(name = "cognito_sub", nullable = false, unique = true, length = 50)
-    private String cognitoSub;
+    @Column(name = "auth_sub", nullable = false, unique = true, length = 255)
+    private String authSub;
 
     @Column(nullable = false, unique = true, length = 150)
     private String email;
@@ -33,7 +35,20 @@ public class User {
     private String fullName;
 
     @Column(name = "global_role", length = 50)
+    @Builder.Default
     private String globalRole = "APP_USER";
+
+    @Column(name = "gmail_access_token", length = 2000)
+    private String gmailAccessToken;
+
+    @Column(name = "gmail_refresh_token", length = 2000)
+    private String gmailRefreshToken;
+
+    @Column(name = "zoom_access_token", length = 2000)
+    private String zoomAccessToken;
+
+    @Column(name = "zoom_refresh_token", length = 2000)
+    private String zoomRefreshToken;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -55,15 +70,5 @@ public class User {
     public void removeProjectRole(ProjectUserRole pur) {
         projectRoles.remove(pur);
         pur.setUser(null);
-    }
-
-    /**
-     * JPA lifecycle callback to generate custom ID before persisting
-     */
-    @PrePersist
-    public void generateId() {
-        if (this.id == null) {
-            this.id = IdGenerator.generateIdWithPrefix("U"); // U for User (e.g., UA12, UX45)
-        }
     }
 }

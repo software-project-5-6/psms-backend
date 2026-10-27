@@ -2,6 +2,7 @@ package com.majstro.psms.backend.dto;
 
 import com.majstro.psms.backend.entity.ProjectUserRole;
 import lombok.*;
+
 import java.time.Instant;
 
 @Getter
@@ -12,10 +13,15 @@ import java.time.Instant;
 public class UserDto {
 
     private String id;
-    private String cognitoSub;
+    private String authSub;
     private String email;
     private String fullName;
     private String globalRole;
     private Instant createdAt;
     private Instant updatedAt;
+    private String gmailAccessToken;
+    private String gmailRefreshToken;
+    private String zoomAccessToken;
+    private String zoomRefreshToken;
+
 }

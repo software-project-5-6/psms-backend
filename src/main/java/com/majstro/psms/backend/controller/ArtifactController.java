@@ -1,6 +1,9 @@
 package com.majstro.psms.backend.controller;
 
 import com.majstro.psms.backend.dto.ArtifactSummaryDto;
+import com.majstro.psms.backend.dto.EmailDto;
+import com.majstro.psms.backend.dto.GmailQueryDto;
+import com.majstro.psms.backend.dto.ZoomTranscriptDto;
 import com.majstro.psms.backend.entity.Artifact;
 import com.majstro.psms.backend.entity.ArtifactType;
 import com.majstro.psms.backend.entity.Project;
@@ -9,11 +12,9 @@ import com.majstro.psms.backend.rag.RagServices;
 import com.majstro.psms.backend.service.ArtifactService;
 import com.majstro.psms.backend.service.IProjectService;
 import com.majstro.psms.backend.service.IUserService;
+import com.majstro.psms.backend.service.ThirdPartyServices;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,6 +36,7 @@ public class ArtifactController {
     private final IProjectService projectService;
     private final RagServices ragServices;
     private final IUserService userService;
+    private final ThirdPartyServices thirdPartyServices;
 
     /**
      * Get all artifacts for a project
@@ -68,25 +70,16 @@ public class ArtifactController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ArtifactMapper.toUploadResponse(artifact));
     }
 
-    /**
-     * Download artifact
-     */
     @GetMapping("/{artifactId}/download")
-    public ResponseEntity<Resource> download(
+    public ResponseEntity<java.util.Map<String, String>> download(
             @PathVariable String projectId,
             @PathVariable Long artifactId) {
 
         projectService.getProjectEntityById(projectId);
         Artifact artifact = artifactService.getArtifactForProject(artifactId, projectId);
-        Resource resource = artifactService.loadArtifactFile(artifact);
+        String signedUrl = artifactService.getDownloadUrl(artifact);
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(artifact.getContentType()))
-                .header(
-                        HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + artifact.getOriginalFilename() + "\""
-                )
-                .body(resource);
+        return ResponseEntity.ok(java.util.Map.of("url", signedUrl));
     }
 
     /**
@@ -102,4 +95,24 @@ public class ArtifactController {
         ragServices.deleteDocs(projectId);
         return ResponseEntity.noContent().build();
     }
+
+
+    @PostMapping("/gmails")
+    public ResponseEntity<List<EmailDto>> getGmails(@RequestBody GmailQueryDto queryDto) {
+        var user = userService.getCurrentUser();
+        String query = queryDto.buildQueryString();
+        List<String> queries = List.of(query);
+        List<EmailDto> emails = thirdPartyServices.getGmails(user.getId(), queries);
+        return ResponseEntity.ok(emails);
+    }
+
+
+    @GetMapping("/zoom-transcripts/{meetingId}")
+    public ResponseEntity<ZoomTranscriptDto> getZoomTranscripts(@PathVariable String meetingId) {
+        var user = userService.getCurrentUser();
+        String accessToken = user.getZoomAccessToken();
+        var transcriptDto = thirdPartyServices.getZoomTranscripts(accessToken, meetingId);
+        return ResponseEntity.ok(transcriptDto);
+    }
+
 }

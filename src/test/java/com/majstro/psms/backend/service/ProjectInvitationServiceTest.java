@@ -77,7 +77,7 @@ class ProjectInvitationServiceTest {
 
         // Assert
         verify(invitationRepository).save(any(ProjectInvitation.class));
-        verify(emailService).sendEmail(eq("newuser@test.com"), anyString(), anyString());
+        verify(emailService).sendHtmlEmail(eq("newuser@test.com"), anyString(), anyString());
     }
 
     @Test

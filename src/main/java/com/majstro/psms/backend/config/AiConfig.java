@@ -32,11 +32,11 @@ public class AiConfig {
         return new TokenTextSplitter();
     }
 
-    // Mark Ollama embedding model as primary for vector store
+    // Mark OpenAI embedding model as primary for vector store (configured to use Jina AI)
     @Bean
     @Primary
-    public EmbeddingModel embeddingModel(@Qualifier("ollamaEmbeddingModel") EmbeddingModel ollamaEmbeddingModel) {
-        return ollamaEmbeddingModel;
+    public EmbeddingModel embeddingModel(@Qualifier("openAiEmbeddingModel") EmbeddingModel openAiEmbeddingModel) {
+        return openAiEmbeddingModel;
     }
 }
 

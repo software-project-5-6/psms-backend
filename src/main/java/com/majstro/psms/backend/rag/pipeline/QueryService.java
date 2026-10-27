@@ -2,6 +2,7 @@ package com.majstro.psms.backend.rag.pipeline;
 
 import com.majstro.psms.backend.entity.Message;
 import com.majstro.psms.backend.entity.Project;
+import com.majstro.psms.backend.rag.dataModel.AnswerResult;
 import com.majstro.psms.backend.rag.dataModel.RequestModel;
 import com.majstro.psms.backend.rag.validator.executor.InputGuardRailExecutor;
 import com.majstro.psms.backend.repository.MessageRepository;
@@ -31,7 +32,7 @@ public class QueryService {
     private final InputGuardRailExecutor inputGuardRailExecutor;
     private final MessageRepository messageRepository;
 
-    public String answerUserQuery(String userQuery, String projectId, String conversationId) {
+    public AnswerResult answerUserQuery(String userQuery, String projectId, String conversationId) {
 
         Project project = projectService.getProjectEntityById(projectId);
 
@@ -86,9 +87,11 @@ public class QueryService {
         System.out.print(prompt);
 
         // call LLM (CURRENT API)
-        return chatClient
+        var answer = chatClient
                 .prompt(prompt)
                 .call()
                 .content();
+
+        return new AnswerResult(prompt, answer);
     }
 }

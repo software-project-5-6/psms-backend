@@ -5,11 +5,13 @@ import com.majstro.psms.backend.dto.ProjectWithUsersDto;
 import com.majstro.psms.backend.entity.Project;
 import com.majstro.psms.backend.entity.ProjectUserRole;
 import com.majstro.psms.backend.entity.User;
+import com.majstro.psms.backend.exception.ResourceAlreadyExistsException;
 import com.majstro.psms.backend.mapper.ProjectMapper;
 import com.majstro.psms.backend.repository.ProjectRepository;
 import com.majstro.psms.backend.repository.ProjectUserRoleRepository;
 import com.majstro.psms.backend.repository.UserRepository;
 import com.majstro.psms.backend.service.impl.ProjectServiceImpl;
+import com.majstro.psms.backend.service.storage.FileStorageService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,6 +45,10 @@ class ProjectServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    // ADDED: Mock the FileStorageService to prevent the NullPointerException during deletion tests
+    @Mock
+    private FileStorageService fileStorageService;
 
     @InjectMocks
     private ProjectServiceImpl projectService;
@@ -80,7 +86,8 @@ class ProjectServiceTest {
         when(projectRepository.existsByProjectName("Existing Project")).thenReturn(true);
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () ->
+        // CHANGED: Expecting ResourceAlreadyExistsException instead of IllegalArgumentException
+        assertThrows(ResourceAlreadyExistsException.class, () ->
                 projectService.createProject(inputDto, "user-1")
         );
 
@@ -118,6 +125,8 @@ class ProjectServiceTest {
 
         // Assert
         verify(projectRepository).deleteById(projectId);
+        // Optional: Verify that the storage service was also called to clean up files
+        verify(fileStorageService).deleteProjectDirectory(projectId);
     }
 
     @Test

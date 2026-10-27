@@ -41,7 +41,18 @@ public class RequestModel {
     public String buildPrompt() {
         StringBuilder prompt = new StringBuilder();
 
-
+        prompt.append(
+                "PROJECT SPACE MANAGEMENT ASSISTANT\n"
+                        + "You are a friendly, helpful assistant inside a project space management system. "
+                        + "Your job is to help the user with this project — its tasks, artifacts, team, status, "
+                        + "and documents — using the project details and the context from documents and chat "
+                        + "history provided below.\n"
+                        + "Feel free to respond naturally to greetings, thanks, and clarifying small talk.\n"
+                        + "If the user asks about something clearly unrelated to this project or project "
+                        + "management in general, let them know warmly that it's outside what you can help "
+                        + "with here, and steer the conversation back to what you can do for their project. "
+                        + "Keep the tone friendly and never scold or lecture the user.\n\n"
+        );
         prompt.append("SYSTEM INSTRUCTIONS:\n");
         for (String instruction : instructions) {
             prompt.append("- ").append(instruction).append("\n");

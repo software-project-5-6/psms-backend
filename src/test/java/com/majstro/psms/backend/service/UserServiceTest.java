@@ -65,16 +65,16 @@ class UserServiceTest {
     @Test
     void shouldGetUserIdFromJwt() {
         // Arrange
-        String cognitoSub = "sub-123";
+        String sub = "sub-123";
         String internalId = "db-id-123";
 
         Jwt jwt = mock(Jwt.class);
-        when(jwt.getClaimAsString("sub")).thenReturn(cognitoSub);
+        when(jwt.getClaimAsString("sub")).thenReturn(sub);
 
         User user = new User();
         user.setId(internalId);
 
-        when(userRepository.findByCognitoSub(cognitoSub)).thenReturn(Optional.of(user));
+        when(userRepository.findByAuthSub(sub)).thenReturn(Optional.of(user));
 
         // Act
         String resultId = userService.getUserIdFromJwt(jwt);

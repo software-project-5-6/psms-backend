@@ -12,12 +12,16 @@ public class UserMapper {
 
         return UserDto.builder()
                 .id(user.getId())
-                .cognitoSub(user.getCognitoSub())
+                .authSub(user.getAuthSub())
                 .email(user.getEmail())
                 .fullName(user.getFullName())
                 .globalRole(user.getGlobalRole())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
+                .gmailAccessToken(user.getGmailAccessToken())
+                .gmailRefreshToken(user.getGmailRefreshToken())
+                .zoomAccessToken(user.getZoomAccessToken())
+                .zoomRefreshToken(user.getZoomRefreshToken())
                 .build();
     }
 
@@ -26,7 +30,7 @@ public class UserMapper {
 
         return User.builder()
                 .id(dto.getId())
-                .cognitoSub(dto.getCognitoSub())
+                .authSub(dto.getAuthSub())
                 .email(dto.getEmail())
                 .fullName(dto.getFullName())
                 .globalRole(dto.getGlobalRole())
