@@ -40,7 +40,7 @@ public class SecurityConfig {
                                                                 "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**")
                                                 .hasAnyAuthority("APP_ADMIN", "APP_USER")
                                                 .requestMatchers("/api/admin/**").hasAuthority("APP_ADMIN")
-                                                .requestMatchers("/api/user/**")
+                                                .requestMatchers("/api/user/**", "/api/v1/support/**")
                                                 .hasAnyAuthority("APP_ADMIN", "APP_USER")
                                                 .requestMatchers(
                                                                 "/oauth/google",
